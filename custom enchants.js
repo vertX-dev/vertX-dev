@@ -59,327 +59,357 @@ function randomCurse(count, level, list) {
 
 
 // Enchants
-const enchants = {
-    aetherExchange: {
-        id: 01,
-        name: "§cAether's Exchange",
-        type: "Curse",
-        maxLvl: 2,
-        description: "Convert all mana to double damage at Level 1 and store 80% of mana for up to 10x damage at Level 2",
-        cost: 8000,
-        enchantOn: "sword",
-        rarity: "legendary"
-    },
-    abyssalBreaker: {
-        id: 02,
-        name: "§cAbyssal Breaker",
-        type: "Curse",
-        maxLvl: 5,
-        description: "Gain +50% damage per level with a 35% chance per level to trigger a random curse.",
-        cost: 7800,
-        enchantOn: "sword",
-        rarity: "mythic"
-    },
-    wisdomWrath: {
-        id: 03,
-        name: "§6Wisdom's Wrath",
-        type: "Buff",
-        maxLvl: 10,
-        description: "Convert knowledge into power: +1 bonus damage per level every 10 levels.",
-        cost: 4000,
-        enchantOn: "sword",
-        rarity: "legendary"
-    },
-    permafrost: {
-        id: 04,
-        name: "§9Permafrost",
-        type: "Buff",
-        maxLvl: 6,
-        description: "Encases foes in ice. Each hit slows and has a 7.5% chance to summon powder snow; frozen enemies take massive bonus damage.",
-        cost: 1000,
-        enchantOn: "sword",
-        rarity: "epic"
-    },
-    finalJudgement: {
-        id: 05,
-        name: "§5Final Judgement",
-        type: "Buff",
-        maxLvl: 6,
-        description: "Instantly decapitates foes below 15% health or when remaining health is less than 1x to 2.5x the hit damage. Kill chance scales from 1/20 to 5/20 (20/20 on level 6, but chances to obtain head remain 5/20) and guarantees a mob head drop.",
-        cost: 4400,
-        enchantOn: "sword",
-        rarity: "epic"
-    },
-    swarmSlayer: {
-        id: 06,
-        name: "§2Swarm Slayer",
-        type: "Buff",
-        maxLvl: 4,
-        description: "Adds +15% damage per level when mobs are nearby and applies Slowness I to surrounding foes.",
-        cost: 700,
-        enchantOn: "sword",
-        rarity: "uncommon"
-    },
-    sweepingEdge: {
-        id: 07,
-        name: "§eSweeping Edge",
-        type: "Buff",
-        maxLvl: 5,
-        description: "Enhances sweeping strikes with +20% bonus damage against multiple foes.",
-        cost: 400,
-        enchantOn: "sword",
-        rarity: "rare"
-    },
-    quickstrike: {
-        id: 8,
-        name: "§eQuickstrike",
-        type: "Buff",
-        maxLvl: 05,
-        description: "Increase attack speed by 10% per level.",
-        cost: 1250,
-        enchantOn: "sword",
-        rarity: "uncommon"
-    },
-    lifesteal: {
-        id: 09,
-        name: "§dLifesteal",
-        type: "Buff",
-        maxLvl: 4,
-        description: "Converts a portion of damage dealt into health. Restores 2.5% of damage per level.",
-        cost: 1800,
-        enchantOn: "sword",
-        rarity: "rare"
-    },
-    gravityPull: {
-        id: 10,
-        name: "§bGravity Pull",
-        type: "Buff",
-        maxLvl: 3,
-        description: "Pulls nearby enemies towards the landing area of your projectile, with pull strength increasing per level.",
-        cost: 1700,
-        enchantOn: "bow",
-        rarity: "epic"
-    },
-    enderSlayer: {
-        id: 11,
-        name: "§5Ender Slayer",
-        type: "Buff",
-        maxLvl: 8,
-        description: "Empowers your weapon to deal an extra 9% damage per level against mobs from the End dimension.",
-        cost: 800,
-        enchantOn: "sword",
-        rarity: "rare"
-    },
-    lightWeight: {
-        id: 12,
-        name: "§eLight Weight",
-        type: "Trade Off",
-        maxLvl: 5,
-        description: "Enhances movement speed by +5% per level while reducing defense by -1% per level. Ideal for agile warriors willing to trade a bit of protection for increased mobility.",
-        cost: 300,
-        enchantOn: "armor",
-        rarity: "uncommon"
-    },
-    nightVision: {
-        id: 13,
-        name: "§aNight's Sight",
-        type: "Buff",
-        maxLvl: 1,
-        description: "Grants the wearer Night Vision, allowing clear visibility in the dark. Perfect for exploring caves or nighttime adventures.",
-        cost: 1700,
-        enchantOn: "helmet",
-        rarity: "rare"
-    },
-    enderHunter: {
-        id: 14,
-        name: "§5Ender Hunter",
-        type: "Buff",
-        maxLvl: 3,
-        description: "Enhances your bow or crossbow for attacks against Endermen. At Level 1, Endermen take only 60% of your normal damage (-40% penalty), while at Level 3 they take 120% (+20% bonus). Level 2 offers an intermediate effect (-10%)",
-        cost: 2500,
-        enchantOn: "bow,crossbow",
-        rarity: "epic"
-    },
-    manaBarrier: {
-        id: 15,
-        name: "§bMana Barrier",
-        type: "Trade Off",
-        maxLvl: 3,
-        description: "Converts 5% mana per level into defense. Grants +0.5 defense per mana used, with +0.5 extra per level. Caps at 500 defense. When hit, drains mana by 70% (L1), 40% (L2), or 10% (L3) of damage",
-        cost: 2000,
-        enchantOn: "armor",
-        rarity: "rare"
-    },
-    skyPiercer: {
-        id: 16,
-        name: "§3Sky Piercer",
-        type: "Buff",
-        maxLvl: 6,
-        description: "Grants +10% damage per level while airborne. Unleash greater power from the skies",
-        cost: 2500,
-        enchantOn: "elytra",
-        rarity: "epic"
-    },
-    stormChain: {
-        id: 17,
-        name: "§5Storm Chain",
-        type: "Buff",
-        maxLvl: 7,
-        description: "Strikes up to 8 nearby enemies with lightning, chaining from the target. Range and count scale with level (up to 12 blocks). Chained enemies take 30% damage and are stunned for 1s",
-        cost: 8200,
-        enchantOn: "bow",
-        rarity: "legendary"
-    },
-    curseOfBreaking: {
-        id: 18,
-        name: "§cCurse of Breaking",
-        type: "Curse",
-        maxLvl: 3,
-        description: "Item breaks 2x/3x/4x faster depending on level. Durability is consumed rapidly.",
-        cost: 100,
-        enchantOn: "all",
-        rarity: "common"
-    },
-    curseOfSlippery: {
-        id: 19,
-        name: "§cCurse of Slippery",
-        type: "Curse",
-        maxLvl: 1,
-        description: "Makes items occasionally slip from your hand. The item is randomly dropped while using tools or weapons.",
-        cost: 100,
-        enchantOn: "tools, weapons",
-        rarity: "rare"
-    },
-    curseOfIncompatibility: {
-        id: 20,
-        name: "§cCurse of Incompatibility",
-        type: "Curse",
-        maxLvl: 1,
-        description: "Makes all other enchantments incompatible with the item",
-        cost: 20000,
-        enchantOn: "all",
-        rarity: "legendary"
-    },
-    enlightenment: {
-        id: 21,
-        name: "§eEnlightenment",
-        type: "Buff",
-        maxLvl: 10,
-        description: "Increases experience gained from any source by 12.5% per level. Stacks with other armor pieces.",
-        cost: 3500,
-        enchantOn: "armor",
-        rarity: "epic"
-    },
-    curseOfCorrosion: {
-        id: 22,
-        name: "§cCurse of Corrosion",
-        type: "Curse",
-        maxLvl: 20,
-        description: "Deals damage to the player when in contact with water or during rain. Takes 2 damage per level every 3 seconds when outside in rain or touching water.",
-        cost: 700,
-        enchantOn: "all",
-        rarity: "legendary"
-    },
-    curseOfOcean: {
-        id: 23,
-        name: "§cCurse of Ocean",
-        type: "Curse",
-        maxLvl: 5,
-        description: "Makes the player drown instantly upon contact with water, taking 10x damage from drowning. Grants additional debuffs: Blindness, Weakness, Mining Fatigue, Slowness, and Nausea.",
-        cost: 0,
-        enchantOn: "all",
-        rarity: "legendary"
-    },
-    heatResistance: {
-        id: 24,
-        name: "§eHeat Resistance",
-        type: "Buff",
-        maxLvl: 5,
-        description: "Provides passive protection against high temperatures, reducing heat damage and preventing overheating.",
-        cost: 2200,
-        enchantOn: "armor",
-        rarity: "rare"
-    },
-    coldResistance: {
-        id: 25,
-        name: "§bCold Resistance",
-        type: "Buff",
-        maxLvl: 5,
-        description: "Provides passive protection against cold, reducing the risk of frostbite and mitigating slowing effects from low temperatures.",
-        cost: 2200,
-        enchantOn: "armor",
-        rarity: "rare"
-    },
-    frost: {
-        id: 26,
-        name: "§3Frost",
-        type: "Buff",
-        maxLvl: 7,
-        description: "Activates only when ambient temperature is high; temporarily reduces the surrounding temperature and then goes into cooldown.",
-        cost: 1800,
-        enchantOn: "armor",
-        rarity: "epic"
-    },
-    thermalEquilibrium: {
-        id: 27,
-        name: "§aThermal Equilibrium",
-        type: "Buff",
-        maxLvl: 5,
-        description: "Combines heat and cold resistance, providing balanced protection against both high temperatures and freezing conditions.",
-        cost: 3000,
-        enchantOn: "armor",
-        rarity: "epic"
-    },
-    markExplosion: {
-        id: 28,
-        name: "§6Mark & Burst",
-        type: "Buff",
-        maxLvl: 1,
-        description: "Marks an enemy on the first shot. On the second shot, triggers an explosion causing 500% AoE explosion based on normal damage.",
-        cost: 9000,
-        enchantOn: "bow,crossbow",
-        rarity: "legendary"
-    }
+const enchants = {  
+    aetherExchange: {  
+        id: 10,  
+        lvl: 1,  
+        name: "§cAether's Exchange",  
+        type: "Curse",  
+        maxLvl: 2,  
+        description: "Convert all mana to double damage at Level 1 and store 80% of mana for up to 10x damage at Level 2",  
+        cost: 8000,  
+        enchantOn: "sword",  
+        rarity: "legendary"  
+    },  
+    abyssalBreaker: {  
+        id: 11,  
+        lvl: 1,  
+        name: "§cAbyssal Breaker",  
+        type: "Curse",  
+        maxLvl: 5,  
+        description: "Gain +50% damage per level with a 35% chance per level to trigger a random curse.",  
+        cost: 7800,  
+        enchantOn: "sword",  
+        rarity: "mythic"  
+    },  
+    wisdomWrath: {  
+        id: 12,  
+        lvl: 1,  
+        name: "§6Wisdom's Wrath",  
+        type: "Buff",  
+        maxLvl: 10,  
+        description: "Convert knowledge into power: +1 bonus damage per level every 10 levels.",  
+        cost: 4000,  
+        enchantOn: "sword",  
+        rarity: "legendary"  
+    },  
+    permafrost: {  
+        id: 13,  
+        lvl: 1,  
+        name: "§9Permafrost",  
+        type: "Buff",  
+        maxLvl: 6,  
+        description: "Encases foes in ice. Each hit slows and has a 7.5% chance to summon powder snow; frozen enemies take massive bonus damage.",  
+        cost: 1000,  
+        enchantOn: "sword",  
+        rarity: "epic"  
+    },  
+    finalJudgement: {  
+        id: 14,  
+        lvl: 1,  
+        name: "§5Final Judgement",  
+        type: "Buff",  
+        maxLvl: 6,  
+        description: "Instantly decapitates foes below 15% health or when remaining health is less than 1x to 2.5x the hit damage. Kill chance scales from 1/20 to 5/20 (20/20 on level 6, but chances to obtain head remain 5/20) and guarantees a mob head drop.",  
+        cost: 4400,  
+        enchantOn: "sword",  
+        rarity: "epic"  
+    },  
+    swarmSlayer: {  
+        id: 15,  
+        lvl: 1,  
+        name: "§2Swarm Slayer",  
+        type: "Buff",  
+        maxLvl: 4,  
+        description: "Adds +15% damage per level when mobs are nearby and applies Slowness I to surrounding foes.",  
+        cost: 700,  
+        enchantOn: "sword",  
+        rarity: "uncommon"  
+    },  
+    sweepingEdge: {  
+        id: 16,  
+        lvl: 1,  
+        name: "§eSweeping Edge",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Enhances sweeping strikes with +20% bonus damage against multiple foes.",  
+        cost: 400,  
+        enchantOn: "sword",  
+        rarity: "rare"  
+    },  
+    quickstrike: {  
+        id: 17,  
+        lvl: 1,  
+        name: "§eQuickstrike",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Increase attack speed by 10% per level.",  
+        cost: 1250,  
+        enchantOn: "sword",  
+        rarity: "uncommon"  
+    },  
+    lifesteal: {  
+        id: 18,  
+        lvl: 1,  
+        name: "§dLifesteal",  
+        type: "Buff",  
+        maxLvl: 4,  
+        description: "Converts a portion of damage dealt into health. Restores 2.5% of damage per level.",  
+        cost: 1800,  
+        enchantOn: "sword",  
+        rarity: "rare"  
+    },  
+    gravityPull: {  
+        id: 19,  
+        lvl: 1,  
+        name: "§bGravity Pull",  
+        type: "Buff",  
+        maxLvl: 3,  
+        description: "Pulls nearby enemies towards the landing area of your projectile, with pull strength increasing per level.",  
+        cost: 1700,  
+        enchantOn: "bow",  
+        rarity: "epic"  
+    },  
+    enderSlayer: {  
+        id: 20,  
+        lvl: 1,  
+        name: "§5Ender Slayer",  
+        type: "Buff",  
+        maxLvl: 8,  
+        description: "Empowers your weapon to deal an extra 9% damage per level against mobs from the End dimension.",  
+        cost: 800,  
+        enchantOn: "sword",  
+        rarity: "rare"  
+    },  
+    lightWeight: {  
+        id: 21,  
+        lvl: 1,  
+        name: "§eLight Weight",  
+        type: "Trade Off",  
+        maxLvl: 5,  
+        description: "Enhances movement speed by +5% per level while reducing defense by -1% per level. Ideal for agile warriors willing to trade a bit of protection for increased mobility.",  
+        cost: 300,  
+        enchantOn: "armor",  
+        rarity: "uncommon"  
+    },  
+    nightVision: {  
+        id: 22,  
+        lvl: 1,  
+        name: "§aNight's Sight",  
+        type: "Buff",  
+        maxLvl: 1,  
+        description: "Grants the wearer Night Vision, allowing clear visibility in the dark. Perfect for exploring caves or nighttime adventures.",  
+        cost: 1700,  
+        enchantOn: "helmet",  
+        rarity: "rare"  
+    },  
+    enderHunter: {  
+        id: 23,  
+        lvl: 1,  
+        name: "§5Ender Hunter",  
+        type: "Buff",  
+        maxLvl: 3,  
+        description: "Enhances your bow or crossbow for attacks against Endermen. At Level 1, Endermen take only 60% of your normal damage (-40% penalty), while at Level 3 they take 120% (+20% bonus). Level 2 offers an intermediate effect (-10%)",  
+        cost: 2500,  
+        enchantOn: "bow,crossbow",  
+        rarity: "epic"  
+    },  
+    manaBarrier: {  
+        id: 24,  
+        lvl: 1,  
+        name: "§bMana Barrier",  
+        type: "Trade Off",  
+        maxLvl: 3,  
+        description: "Converts 5% mana per level into defense. Grants +0.5 defense per mana used, with +0.5 extra per level. Caps at 500 defense. When hit, drains mana by 70% (L1), 40% (L2), or 10% (L3) of damage",  
+        cost: 2000,  
+        enchantOn: "armor",  
+        rarity: "rare"  
+    },  
+    skyPiercer: {  
+        id: 25,  
+        lvl: 1,  
+        name: "§3Sky Piercer",  
+        type: "Buff",  
+        maxLvl: 6,  
+        description: "Grants +10% damage per level while airborne. Unleash greater power from the skies",  
+        cost: 2500,  
+        enchantOn: "elytra",  
+        rarity: "epic"  
+    },  
+    stormChain: {  
+        id: 26,  
+        lvl: 1,  
+        name: "§5Storm Chain",  
+        type: "Buff",  
+        maxLvl: 7,  
+        description: "Strikes up to 8 nearby enemies with lightning, chaining from the target. Range and count scale with level (up to 12 blocks). Chained enemies take 30% damage and are stunned for 1s",  
+        cost: 8200,  
+        enchantOn: "bow",  
+        rarity: "legendary"  
+    },  
+    curseOfBreaking: {  
+        id: 27,  
+        lvl: 1,  
+        name: "§cCurse of Breaking",  
+        type: "Curse",  
+        maxLvl: 3,  
+        description: "Item breaks 2x/3x/4x faster depending on level. Durability is consumed rapidly.",  
+        cost: 100,  
+        enchantOn: "all",  
+        rarity: "common"  
+    },  
+    curseOfSlippery: {  
+        id: 28,  
+        lvl: 1,  
+        name: "§cCurse of Slippery",  
+        type: "Curse",  
+        maxLvl: 1,  
+        description: "Makes items occasionally slip from your hand. The item is randomly dropped while using tools or weapons.",  
+        cost: 100,  
+        enchantOn: "tools, weapons",  
+        rarity: "rare"  
+    },  
+    curseOfIncompatibility: {  
+        id: 29,  
+        lvl: 1,  
+        name: "§cCurse of Incompatibility",  
+        type: "Curse",  
+        maxLvl: 1,  
+        description: "Makes all other enchantments incompatible with the item",  
+        cost: 20000,  
+        enchantOn: "all",  
+        rarity: "legendary"  
+    },  
+    enlightenment: {  
+        id: 30,  
+        lvl: 1,  
+        name: "§eEnlightenment",  
+        type: "Buff",  
+        maxLvl: 10,  
+        description: "Increases experience gained from any source by 12.5% per level. Stacks with other armor pieces.",  
+        cost: 3500,  
+        enchantOn: "armor",  
+        rarity: "epic"  
+    },  
+    curseOfCorrosion: {  
+        id: 31,  
+        lvl: 1,  
+        name: "§cCurse of Corrosion",  
+        type: "Curse",  
+        maxLvl: 20,  
+        description: "Deals damage to the player when in contact with water or during rain. Takes 2 damage per level every 3 seconds when outside in rain or touching water.",  
+        cost: 700,  
+        enchantOn: "all",  
+        rarity: "legendary"  
+    },  
+    curseOfOcean: {  
+        id: 32,  
+        lvl: 1,  
+        name: "§cCurse of Ocean",  
+        type: "Curse",  
+        maxLvl: 5,  
+        description: "Makes the player drown instantly upon contact with water, taking 10x damage from drowning. Grants additional debuffs: Blindness, Weakness, Mining Fatigue, Slowness, and Nausea.",  
+        cost: 0,  
+        enchantOn: "all",  
+        rarity: "legendary"  
+    },  
+    heatResistance: {  
+        id: 33,  
+        lvl: 1,  
+        name: "§eHeat Resistance",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Provides passive protection against high temperatures, reducing heat damage and preventing overheating.",  
+        cost: 2200,  
+        enchantOn: "armor",  
+        rarity: "rare"  
+    },  
+    coldResistance: {  
+        id: 34,  
+        lvl: 1,  
+        name: "§bCold Resistance",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Provides passive protection against cold, reducing the risk of frostbite and mitigating slowing effects from low temperatures.",  
+        cost: 2200,  
+        enchantOn: "armor",  
+        rarity: "rare"  
+    },  
+    frost: {  
+        id: 35,  
+        lvl: 1,  
+        name: "§3Frost",  
+        type: "Buff",  
+        maxLvl: 7,  
+        description: "Activates only when ambient temperature is high; temporarily reduces the surrounding temperature and then goes into cooldown.",  
+        cost: 1800,  
+        enchantOn: "armor",  
+        rarity: "epic"  
+    },  
+    thermalEquilibrium: {  
+        id: 36,  
+        lvl: 1,  
+        name: "§aThermal Equilibrium",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Combines heat and cold resistance, providing balanced protection against both high temperatures and freezing conditions.",  
+        cost: 3000,  
+        enchantOn: "armor",  
+        rarity: "epic"  
+    },  
+    markExplosion: {  
+        id: 37,  
+        lvl: 1,  
+        name: "§6Mark & Burst",  
+        type: "Buff",  
+        maxLvl: 1,  
+        description: "Marks an enemy on the first shot. On the second shot, triggers an explosion causing 500% AoE explosion based on normal damage.",  
+        cost: 9000,  
+        enchantOn: "bow,crossbow",  
+        rarity: "legendary"  
+    }  
 };
 
-// Enchanting UI with function calls for each response
-world.afterEvents.worldInitialize.subscribe(initEvent => {
-    initEvent.blockComponentRegistry.registerCustomComponent("advanced_enchanter:trigger", {
-        onPlayerInteract: e => {
-            // Check if a player holds an item in their main hand.
-            const itemStack = e.player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
-            const itemId = itemStack?.typeId;
-            if (!itemId) {
-                e.player.sendMessage("§cYou're not holding any item!");
-                return;
-            }
+world.afterEvents.chatSend.subscribe((eventData) => {
+    const message = eventData.message.trim();
 
-            // Create the main enchanting UI
-            const enchantingMainUI = new ActionFormData()
-                .title("Enchanting Menu")
-                .body("Select an option:")
-                .button("Enchant")
-                .button("Enchant with Book")
-                .button("Upgrades")
-                .button("Library");
-            
-            // Show the form to the player and handle the response.
-            enchantingMainUI.show(e.player).then((r) => {
-                if (!r.canceled) {
-                    if (r.selection == 0) handleEnchant(e.player, itemId, itemStack);
-                    if (r.selection == 1) handleEnchantWithBook(e.player, itemId, itemStack);
-                    if (r.selection == 2) haldleUpgrade(player);
-                    if (r.selection == 3) handleLibrary(player);
-                }
-            });
+    // Check if the message starts with .enchant command
+    if (message.startsWith(".enchant")) {
+        const player = eventData.sender;
+        const itemStack = player.getComponent("minecraft:equippable")?.getEquipment("mainhand");
+        const itemId = itemStack?.typeId;
+
+        if (!itemId) {
+            player.sendMessage("§cYou're not holding any item!");
+            return;
         }
-    });
+
+        // Create the main enchanting UI
+        const enchantingMainUI = new ActionFormData()
+            .title("Enchanting Menu")
+            .body("Select an option:")
+            .button("Enchant")
+            .button("Enchant with Book")
+            .button("Upgrades")
+            .button("Library");
+
+        // Show the form to the player and handle the response.
+        enchantingMainUI.show(player).then((response) => {
+            if (!response.canceled) {
+                if (response.selection == 0) handleEnchant(player, itemId, itemStack);
+                if (response.selection == 1) handleEnchantWithBook(player, itemId, itemStack);
+                if (response.selection == 2) handleUpgrade(player);
+                if (response.selection == 3) handleLibrary(player);
+            }
+        });
+    }
 });
+
 
 function handleEnchant(player, itemId, itemStack) {
     const knownTypes = [
         // Book
-        "book",
+        "wuco:book",
 
         // Armor
         "helmet", "chestplate", "leggings", "boots",
@@ -410,7 +440,7 @@ function handleEnchantWithBook(player, itemId, itemStack) {
     // Check if the player holds a book in their off hand.
     const bookStack = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Offhand);
     const bookId = bookStack?.typeId;
-    if (!bookId || bookId !== "minecraft:book") {
+    if (!bookId || bookId !== "wuco:book") {
         player.sendMessage("§eYou must hold a book in your offhand!");
         return;
     }
@@ -549,10 +579,10 @@ function handleUpgrade(player) {
     const form = new ActionFormData()
         .title("Enchantment Upgrades")
         .body(`You have ${enchantPoints} upgrade points available.`)
-        .button("Enchant Cost: -${enchantCostLevel * 3}% (Level ${enchantCostLevel}/25)")
-        .button("Curses Bonus: +${cursesBonusLevel * 4}% (Level ${cursesBonusLevel}/25)")
-        .button("Max Enchant Level: ${maxEnchantLevel + 1}/25")
-        .button("Max Enchants Per Item: ${maxEnchantsLevel + 1}/10")
+        .button(`Enchant Cost: -${enchantCostLevel * 3}% (Level ${enchantCostLevel}/25)`)
+        .button(`Curses Bonus: +${cursesBonusLevel * 4}% (Level ${cursesBonusLevel}/25)`)
+        .button(`Max Enchant Level: ${maxEnchantLevel + 1}/25`)
+        .button(`Max Enchants Per Item: ${maxEnchantsLevel + 1}/10`)
         .button("Exit");
     
     form.show(player).then(response => {
