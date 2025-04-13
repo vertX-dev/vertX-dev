@@ -517,7 +517,6 @@ function validateEnchantmentConflicts(combinedEnchants) {
 }
 
 
-//enchant with book
 function handleEnchantWithBook(player, itemId, itemStack) {
     console.log(`[DEBUG] Starting enchanting process`);
 
@@ -536,6 +535,10 @@ function handleEnchantWithBook(player, itemId, itemStack) {
             return;
         }
 
+        // Get item tags to determine valid enchantments
+        const itemTags = getWeaponTags(itemId);
+        if (itemTags.length === 0) return; // getWeaponTags already sends an error message
+
         // Get the item's current lore
         const itemLore = itemStack.getLore ? itemStack.getLore() : [];
         const bookLore = bookStack.getLore ? bookStack.getLore() : [];
@@ -546,8 +549,22 @@ function handleEnchantWithBook(player, itemId, itemStack) {
         let { enchants: itemEnchants, otherLore: itemOtherLore } = parseEnchantments(itemLore);
         let { enchants: bookEnchants } = parseEnchantments(bookLore);
 
-        // Combine enchantments using the new function
-        const combinedEnchants = combineEnchants(itemEnchants, bookEnchants, player);
+        // Filter book enchants to only include valid ones for this item type
+        const validBookEnchants = {};
+        for (const [enchantName, level] of Object.entries(bookEnchants)) {
+            // Find the enchantment data
+            const enchantData = Object.values(enchants).find(e => e.name === enchantName);
+            if (enchantData) {
+                // Check if any of the item's tags match the enchantment's valid targets
+                const canApply = enchantData.enchantOn.some(tag => itemTags.includes(tag));
+                if (canApply) {
+                    validBookEnchants[enchantName] = level;
+                }
+            }
+        }
+
+        // Combine enchantments using the filtered book enchants
+        const combinedEnchants = combineEnchants(itemEnchants, validBookEnchants, player);
         
         if (!validateEnchantmentConflicts(combinedEnchants)) {
             player.sendMessage("§c[MINECRAFT] Unsupported combination of enchantments!");
@@ -575,6 +592,11 @@ function handleEnchantWithBook(player, itemId, itemStack) {
             equipmen.setEquipment(EquipmentSlot.Mainhand, newItem);
             player.runCommand("replaceitem entity @s slot.weapon.offhand 0 air");
 
+            // If some enchants were filtered out, notify the player
+            if (Object.keys(bookEnchants).length !== Object.keys(validBookEnchants).length) {
+                player.sendMessage("§eNot all enchantments could be applied because they were not compatible with this item.");
+            }
+            
             player.sendMessage("§aItem enchanted successfully!");
         } catch (equipError) {
             console.log('[ERROR] Equipment update failed:', equipError);
@@ -598,7 +620,6 @@ function handleEnchantWithBook(player, itemId, itemStack) {
         player.sendMessage("§cAn error occurred while enchanting!");
     }
 }
-
 
 
 
