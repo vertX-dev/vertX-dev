@@ -7,7 +7,7 @@ import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 const enchants = {  
     aetherExchange: {  
         id: 10,  
-        lvl: 1000,  
+        group: "1000",  
         name: "§cAether's Exchange",  
         type: "Curse",  
         maxLvl: 2,  
@@ -18,7 +18,7 @@ const enchants = {
     },  
     abyssalBreaker: {  
         id: 11,  
-        lvl: 999,  
+        group: "999",  
         name: "§cAbyssal Breaker",  
         type: "Curse",  
         maxLvl: 5,  
@@ -29,7 +29,7 @@ const enchants = {
     },  
     wisdomWrath: {  
         id: 12,  
-        lvl: 998,  
+        group: "998",  
         name: "§6Wisdom's Wrath",  
         type: "Buff",  
         maxLvl: 10,  
@@ -40,7 +40,7 @@ const enchants = {
     },  
     permafrost: {  
         id: 13,  
-        lvl: 899,  
+        group: "899",  
         name: "§9Permafrost",  
         type: "Buff",  
         maxLvl: 6,  
@@ -51,7 +51,7 @@ const enchants = {
     },  
     finalJudgement: {  
         id: 14,  
-        lvl: 997,  
+        group: "997",  
         name: "§5Final Judgement",  
         type: "Buff",  
         maxLvl: 6,  
@@ -62,7 +62,7 @@ const enchants = {
     },  
     swarmSlayer: {  
         id: 15,  
-        lvl: 996,  
+        group: "996",  
         name: "§2Swarm Slayer",  
         type: "Buff",  
         maxLvl: 4,  
@@ -73,7 +73,7 @@ const enchants = {
     },  
     sweepingEdge: {  
         id: 16,  
-        lvl: 899,  
+        group: "899",  
         name: "§eSweeping Edge",  
         type: "Buff",  
         maxLvl: 5,  
@@ -84,7 +84,7 @@ const enchants = {
     },  
     quickstrike: {  
         id: 17,  
-        lvl: 995,  
+        group: "995",  
         name: "§eQuickstrike",  
         type: "Buff",  
         maxLvl: 5,  
@@ -95,7 +95,7 @@ const enchants = {
     },  
     lifesteal: {  
         id: 18,  
-        lvl: 994,  
+        group: "994",  
         name: "§dLifesteal",  
         type: "Buff",  
         maxLvl: 4,  
@@ -106,7 +106,7 @@ const enchants = {
     },  
     gravityPull: {  
         id: 19,  
-        lvl: 799,  
+        group: "799",  
         name: "§bGravity Pull",  
         type: "Buff",  
         maxLvl: 3,  
@@ -117,7 +117,7 @@ const enchants = {
     },  
     enderSlayer: {  
         id: 20,  
-        lvl: 500,  
+        group: "500",  
         name: "§5Ender Slayer",  
         type: "Buff",  
         maxLvl: 8,  
@@ -128,7 +128,7 @@ const enchants = {
     },  
     lightWeight: {  
         id: 21,  
-        lvl: 300,  
+        group: "300",  
         name: "§eLight Weight",  
         type: "Trade Off",  
         maxLvl: 5,  
@@ -139,7 +139,7 @@ const enchants = {
     },  
     nightVision: {  
         id: 22,  
-        lvl: 301,  
+        group: "301",  
         name: "§aNight's Sight",  
         type: "Buff",  
         maxLvl: 1,  
@@ -150,7 +150,7 @@ const enchants = {
     },  
     enderHunter: {  
         id: 23,  
-        lvl: 799,  
+        group: "799",  
         name: "§5Ender Hunter",  
         type: "Buff",  
         maxLvl: 3,  
@@ -161,7 +161,7 @@ const enchants = {
     },  
     manaBarrier: {  
         id: 24,  
-        lvl: 302,  
+        group: "302",  
         name: "§bMana Barrier",  
         type: "Trade Off",  
         maxLvl: 3,  
@@ -172,7 +172,7 @@ const enchants = {
     },  
     skyPiercer: {  
         id: 25,  
-        lvl: 399,  
+        group: "399",  
         name: "§3Sky Piercer",  
         type: "Buff",  
         maxLvl: 6,  
@@ -183,7 +183,7 @@ const enchants = {
     },  
     stormChain: {  
         id: 26,  
-        lvl: 799,  
+        group: "799",  
         name: "§5Storm Chain",  
         type: "Buff",  
         maxLvl: 7,  
@@ -194,7 +194,7 @@ const enchants = {
     },  
     curseOfBreaking: {  
         id: 27,  
-        lvl: 666,  
+        group: "666",  
         name: "§cCurse of Breaking",  
         type: "Curse",  
         maxLvl: 3,  
@@ -205,7 +205,7 @@ const enchants = {
     },  
     curseOfSlippery: {  
         id: 28,  
-        lvl: 667,  
+        group: "667",  
         name: "§cCurse of Slippery",  
         type: "Curse",  
         maxLvl: 1,  
@@ -214,20 +214,10 @@ const enchants = {
         enchantOn: ["weapons", "ranged", "tool"],  
         rarity: "rare"  
     },  
-    curseOfIncompatibility: {  //replaced
-        id: 29999,  
-        lvl: 19999,  
-        name: "§cCurse of Incompatibility",  
-        type: "Curse",  
-        maxLvl: 40,  
-        description: "Makes all other enchantments incompatible with the item",  
-        cost: -3000000,  
-        enchantOn: ["all"],  
-        rarity: "legendary"  
-    },  
+    // curseOfIncompatibility has been removed  
     enlightenment: {  
         id: 30,  
-        lvl: 307,  
+        group: "307",  
         name: "§eEnlightenment",  
         type: "Buff",  
         maxLvl: 10,  
@@ -238,7 +228,7 @@ const enchants = {
     },  
     curseOfCorrosion: {  
         id: 31,  
-        lvl: 900,  
+        group: "900",  
         name: "§cCurse of Corrosion",  
         type: "Curse",  
         maxLvl: 20,  
@@ -249,7 +239,7 @@ const enchants = {
     },  
     curseOfOcean: {  
         id: 32,  
-        lvl: 901,  
+        group: "901",  
         name: "§cCurse of Ocean",  
         type: "Curse",  
         maxLvl: 5,  
@@ -260,7 +250,7 @@ const enchants = {
     },  
     heatResistance: {  
         id: 33,  
-        lvl: 333,  
+        group: "333",  
         name: "§eHeat Resistance",  
         type: "Buff",  
         maxLvl: 5,  
@@ -271,7 +261,7 @@ const enchants = {
     },  
     coldResistance: {  
         id: 34,  
-        lvl: 333,  
+        group: "333",  
         name: "§bCold Resistance",  
         type: "Buff",  
         maxLvl: 5,  
@@ -282,7 +272,7 @@ const enchants = {
     },  
     frost: {  
         id: 35,  
-        lvl: 334,  
+        group: "334",  
         name: "§3Frost",  
         type: "Buff",  
         maxLvl: 7,  
@@ -293,7 +283,7 @@ const enchants = {
     },  
     thermalEquilibrium: {  
         id: 36,  
-        lvl: 333,  
+        group: "333",  
         name: "§aThermal Equilibrium",  
         type: "Buff",  
         maxLvl: 5,  
@@ -304,7 +294,7 @@ const enchants = {
     },  
     markExplosion: {  
         id: 37,  
-        lvl: 799,  
+        group: "799",  
         name: "§6Mark & Burst",  
         type: "Buff",  
         maxLvl: 1,  
@@ -644,7 +634,7 @@ function handleEnchant(player, itemId, itemStack) {
             
             // Create slider label with name and cost
             const costText = enchantData.cost > 0 ? 
-                `§c-${enchantData.cost}` : 
+                `§c${enchantData.cost}` : 
                 `§a${enchantData.cost}`;
             const label = `${enchantData.name} (${costText})`;
             
@@ -682,7 +672,7 @@ function handleEnchant(player, itemId, itemStack) {
             });
 
             // Apply cost discounts
-            const finalCost = calculateEnchantmentCost(player, totalCost, curseCount);
+            const finalCost = calculateEnchantmentCost(player, totalCost);
 
             // Check if player can afford the enchantment
             const points = world.scoreboard.getObjective("points")?.getScore(player) || 0;
@@ -701,7 +691,7 @@ function handleEnchant(player, itemId, itemStack) {
             }
             
             // Set the new lore
-            if (newItem.setLore && validateEnchantmentConflicts(newLore)) {
+            if (newItem.setLore && validateEnchantmentConflicts(newEnchants)) {
                 newItem.setLore(newLore);
             } else {
                 player.sendMessage("§c[MINECRAFT] Unsupported combination of enchantments!");
@@ -737,7 +727,7 @@ function handleEnchant(player, itemId, itemStack) {
  * @param {number} curseCount - Number of curses on the item
  * @returns {number} - The final cost after discounts
  */
-function calculateEnchantmentCost(player, baseCost, curseCount = 0) {
+function calculateEnchantmentCost(player, baseCost) {
     // Helper function to get scoreboard values
 
     // Get player's upgrade levels
@@ -748,21 +738,18 @@ function calculateEnchantmentCost(player, baseCost, curseCount = 0) {
     // Base discount: 3% per enchant_cost_level
     const baseDiscount = enchantCostLevel * 0.03; // 3% per level
     
-    // Curse bonus: 4% per curse per curses_bonus_level
-    const curseDiscount = (curseCount * cursesBonusLevel * 0.04); // 4% per level per curse
+    // Curse bonus: 4% per curse per curses_bonus_level// 4% per level per curse
     
     // Calculate final cost with discounts
     // 1. Apply base discount first
     // 2. Then apply curse discount
     // 3. Ensure cost never goes below 1
-    const finalCost = Math.max(1, Math.floor(baseCost * (1 - baseDiscount - curseDiscount)));
+    const finalCost = Math.max(1, Math.floor(baseCost * (1 - baseDiscount)));
     
     // Log calculation details for debugging
     console.log(`[DEBUG] Cost Calculation:
         Base Cost: ${baseCost}
         Enchant Cost Level: ${enchantCostLevel} (${(baseDiscount * 100).toFixed(1)}% discount)
-        Curse Count: ${curseCount}
-        Curses Bonus Level: ${cursesBonusLevel} (${(curseDiscount * 100).toFixed(1)}% discount)
         Final Cost: ${finalCost}`);
     
     return finalCost;
