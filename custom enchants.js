@@ -370,6 +370,12 @@ function randomCurse(count, level, list) {
     return curses;
 }
 
+function getScoreboardValue(scoreboard, player) {
+    const scoreboardObj = world.scoreboard.getObjective(scoreboard);
+    const scoreboardValue = scoreboardObj.getScore(player);
+    return scoreboardValue;
+}
+
 
 world.afterEvents.chatSend.subscribe((eventData) => {
     const message = eventData.message.trim();
@@ -380,7 +386,7 @@ world.afterEvents.chatSend.subscribe((eventData) => {
         const itemStack = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
         const itemId = itemStack?.typeId;
         
-        player.sendMessage("§cYou have 2.5 seconds to close chat for enchanting");
+        player.sendMessage("§cYou have 2 seconds to close chat for enchanting");
 
         // Create the main enchanting UI
         const enchantingMainUI = new ActionFormData()
@@ -401,7 +407,7 @@ world.afterEvents.chatSend.subscribe((eventData) => {
                     if (response.selection == 3) handleLibrary(player);
                 }
             });
-        },50);
+        },40);
         
     }
 });
@@ -443,7 +449,8 @@ function getWeaponTags(itemId) {
         "boots":       ["armor", "boots"],
         "axe":         ["tool", "axe"],
         "elytra":      ["elytra"],
-        "wuco:book":   ["book", "all"]
+        "wuco:book":   ["all", "armor", "axe", "battleaxe", "blunt", "book", "boots", "bow", "broadsword", "chestplate", "cleaver", "claymore", "crossbow", "cutlass", "dagger", "elytra", "gladius", "greatsword", "hammer", "heavy", "helmet", "kama", "katana", "khopesh", "leggings", "lance", "light", "longsword", "mace", "machete", "medium", "morningstar", "nunchaku", "normal", "polearm", "rapier", "ranged", "scimitar", "sai", "short", "staff", "sword", "tool", "trident", "weapon"]
+            
     };
 
     // Loop through mapping and see if itemId contains one of the keys.
@@ -467,7 +474,17 @@ function combineEnchants(itemEnchants, bookEnchants) {
     // Merge enchantments from book
     for (let enchant in bookEnchants) {
         if (combinedEnchants.hasOwnProperty(enchant)) {
-            combinedEnchants[enchant] = Math.max(combinedEnchants[enchant], bookEnchants[enchant]);
+            // Find the matching enchantment data from the enchants object
+            const enchantData = Object.values(enchants).find(e => e.name === enchant);
+            const maxLevel = enchantData ? enchantData.maxLvl : Infinity;
+
+            if (combinedEnchants[enchant] === bookEnchants[enchant]) {
+                // If levels are the same, increment by 1 but don't exceed max level
+                combinedEnchants[enchant] = Math.min(combinedEnchants[enchant] + 1, maxLevel);
+            } else {
+                // If levels are different, take the highest level
+                combinedEnchants[enchant] = Math.max(combinedEnchants[enchant], bookEnchants[enchant]);
+            }
         } else {
             combinedEnchants[enchant] = bookEnchants[enchant];
         }
@@ -779,16 +796,7 @@ function handleLibrary(player) {
     });
 }
 
-function getScoreboardValue(scoreboard, player) {
-        const scoreboardObj = world.scoreboard.getObjective(scoreboard);
-        const scoreboardValue = scoreboardObj.getScore(player);
-        return scoreboardValue;
-    }
-/**
- * Handles the enchantment upgrade system
- * @param {object} player - The player object
- * @returns {void}
- */
+
 function handleUpgrade(player) {
     // Add the getScoreboardValue function for reference
     
@@ -873,44 +881,6 @@ function handleUpgrade(player) {
         // Show the menu again after selection
         handleUpgrade(player);
     });
-}
-
-/**
- * Function to calculate the enchantment cost discount based on player's upgrades
- * @param {object} player - The player object
- * @param {number} baseCost - The base enchantment cost
- * @param {number} curseCount - Number of curses on the item
- * @returns {number} - The final cost after discounts
- */
-/**
- * Function to check if player can apply an enchantment based on upgrades
- * @param {object} player - The player object
- * @param {object} item - The item being enchanted
- * @param {number} enchantLevel - The enchantment level being applied
- * @returns {boolean} - Whether the enchantment can be applied
- */
-function canApplyEnchantment(player, item, enchantLevel) {
-    // Add the getScoreboardValue function for reference
-    const maxEnchantLevel = getScoreboardValue("max_enchant_level", player) || 0;
-    const maxEnchantsLevel = getScoreboardValue("max_enchants_level", player) || 0;
-    
-    // Get current enchantments on item
-    const currentEnchants = item.getComponent("minecraft:enchantments").enchantments;
-    const enchantCount = Object.keys(currentEnchants).length;
-    
-    // Check if requested enchant level is within player's limit
-    if (enchantLevel > maxEnchantLevel + 1) {
-        player.sendMessage("§cYour Max Enchant Level upgrade isn't high enough!");
-        return false;
-    }
-    
-    // Check if adding another enchantment exceeds player's limit
-    if (enchantCount >= maxEnchantsLevel + 1) {
-        player.sendMessage("§cYou've reached your maximum number of enchantments per item!");
-        return false;
-    }
-    
-    return true;
 }
 
 
