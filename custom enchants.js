@@ -442,7 +442,8 @@ function getWeaponTags(itemId) {
         "leggings":    ["armor", "leggings"],
         "boots":       ["armor", "boots"],
         "axe":         ["tool", "axe"],
-        "elytra":      ["elytra"]
+        "elytra":      ["elytra"],
+        "wuco:book":   ["book", "all"]
     };
 
     // Loop through mapping and see if itemId contains one of the keys.
@@ -561,9 +562,162 @@ function handleEnchantWithBook(player, itemId, itemStack) {
 
 
 //Enchant
+function handleEnchant(player, itemId, itemStack) {
+    if (!itemId || !itemStack) {
+        player.sendMessage("§cYou must hold an item to enchant!");
+        return;
+    }
 
+    // Get item tags to determine valid enchantments
+    const itemTags = getWeaponTags(itemId);
+    if (itemTags.length === 0) return; // getWeaponTags already sends an error message
 
+    // Get current enchantments on the item
+    const itemLore = itemStack.getLore ? itemStack.getLore() : [];
+    let { enchants: currentEnchants } = parseEnchantments(itemLore);
 
+    // Create the form
+    const form = new ModalFormData()
+        .title("Enchant Item");
+
+    // Keep track of available enchants for processing response
+    const availableEnchants = [];
+
+    // Add sliders for each valid enchant
+    for (const [enchantId, enchantData] of Object.entries(enchants)) {
+        // Check if the enchant can be applied to this item type
+        const canApply = enchantData.enchantOn.some(tag => itemTags.includes(tag));
+        if (canApply) {
+            availableEnchants.push(enchantData);
+            const currentLevel = currentEnchants[enchantData.name] || 0;
+            
+            // Create slider label with name and cost
+            const costText = enchantData.cost > 0 ? 
+                `§a+${enchantData.cost}` : 
+                `§c${enchantData.cost}`;
+            const label = `${enchantData.name} (${costText})`;
+            
+            // Add slider
+            form.slider(
+                label,
+                0,                      // min level (0 = not applied)
+                enchantData.maxLvl,     // max level from enchant data
+                1,                      // step size
+                currentLevel           // current level (if exists)
+            );
+        }
+    }
+
+    // Show the form to the player
+    form.show(player).then((response) => {
+        if (response.canceled) return;
+
+        try {
+            // Calculate total cost and build new enchantments
+            let totalCost = 0;
+            let newEnchants = {};
+            let curseCount = 0;
+
+            response.formValues.forEach((level, index) => {
+                if (level > 0) { // Only process enchants that were selected
+                    const enchant = availableEnchants[index];
+                    newEnchants[enchant.name] = level;
+                    
+                    // Calculate cost based on level selected
+                    const enchantCost = enchant.cost * level;
+                    totalCost += enchantCost;
+
+                    // Count curses for potential discounts
+                    if (enchant.type === "Curse") {
+                        curseCount++;
+                    }
+                }
+            });
+
+            // Apply cost discounts
+            const finalCost = calculateEnchantmentCost(player, totalCost, curseCount);
+
+            // Check if player can afford the enchantment
+            const points = world.scoreboard.getObjective("points")?.getScore(player) || 0;
+            if (points < finalCost) {
+                player.sendMessage(`§cYou need ${finalCost} points to apply these enchantments!`);
+                return;
+            }
+
+            // Create new item with enchantments
+            const newItem = itemStack.clone();
+            let newLore = [];
+            
+            // Add each enchantment to lore
+            for (const [enchantName, level] of Object.entries(newEnchants)) {
+                newLore.push(`${enchantName} ${intToRoman(level)}`);
+            }
+
+            // Set the new lore
+            if (newItem.setLore) {
+                newItem.setLore(newLore);
+            }
+
+            // Update the item in player's hand
+            try {
+                const equipment = player.getComponent("minecraft:equippable");
+                if (equipment) {
+                    equipment.setEquipment(EquipmentSlot.Mainhand, newItem);
+                    
+                    // Deduct points
+                    player.runCommand(`scoreboard players remove @s points ${finalCost}`);
+                    
+                    player.sendMessage(`§aSuccessfully applied enchantments for ${finalCost} points!`);
+                }
+            } catch (error) {
+                console.error("Failed to update item:", error);
+                player.sendMessage("§cFailed to apply enchantments!");
+            }
+
+        } catch (error) {
+            console.error("Error in enchant handling:", error);
+            player.sendMessage("§cAn error occurred while enchanting!");
+        }
+    });
+}
+
+    /**
+ * Function to calculate the enchantment cost discount based on player's upgrades
+ * @param {object} player - The player object
+ * @param {number} baseCost - The base enchantment cost
+ * @param {number} curseCount - Number of curses on the item
+ * @returns {number} - The final cost after discounts
+ */
+function calculateEnchantmentCost(player, baseCost, curseCount = 0) {
+    // Helper function to get scoreboard values
+
+    // Get player's upgrade levels
+    const enchantCostLevel = getScoreboardValue("enchant_cost_level", player) || 0;
+    const cursesBonusLevel = getScoreboardValue("curses_bonus_level", player) || 0;
+    
+    // Calculate discounts
+    // Base discount: 3% per enchant_cost_level
+    const baseDiscount = enchantCostLevel * 0.03; // 3% per level
+    
+    // Curse bonus: 4% per curse per curses_bonus_level
+    const curseDiscount = (curseCount * cursesBonusLevel * 0.04); // 4% per level per curse
+    
+    // Calculate final cost with discounts
+    // 1. Apply base discount first
+    // 2. Then apply curse discount
+    // 3. Ensure cost never goes below 1
+    const finalCost = Math.max(1, Math.floor(baseCost * (1 - baseDiscount - curseDiscount)));
+    
+    // Log calculation details for debugging
+    console.log(`[DEBUG] Cost Calculation:
+        Base Cost: ${baseCost}
+        Enchant Cost Level: ${enchantCostLevel} (${(baseDiscount * 100).toFixed(1)}% discount)
+        Curse Count: ${curseCount}
+        Curses Bonus Level: ${cursesBonusLevel} (${(curseDiscount * 100).toFixed(1)}% discount)
+        Final Cost: ${finalCost}`);
+    
+    return finalCost;
+}
 
 // Function to handle the "Library" option.
 function handleLibrary(player) {
@@ -625,7 +779,11 @@ function handleLibrary(player) {
     });
 }
 
-
+function getScoreboardValue(scoreboard, player) {
+        const scoreboardObj = world.scoreboard.getObjective(scoreboard);
+        const scoreboardValue = scoreboardObj.getScore(player);
+        return scoreboardValue;
+    }
 /**
  * Handles the enchantment upgrade system
  * @param {object} player - The player object
@@ -633,11 +791,7 @@ function handleLibrary(player) {
  */
 function handleUpgrade(player) {
     // Add the getScoreboardValue function for reference
-    function getScoreboardValue(scoreboard, player) {
-        const scoreboardObj = world.scoreboard.getObjective(scoreboard);
-        const scoreboardValue = scoreboardObj.getScore(player);
-        return scoreboardValue;
-    }
+    
     // Get player's current upgrade levels from scoreboards
     const enchantCostLevel = getScoreboardValue("enchant_cost_level", player) || 0;
     const cursesBonusLevel = getScoreboardValue("curses_bonus_level", player) || 0;
@@ -728,21 +882,6 @@ function handleUpgrade(player) {
  * @param {number} curseCount - Number of curses on the item
  * @returns {number} - The final cost after discounts
  */
-function calculateEnchantmentCost(player, baseCost, curseCount = 0) {
-    // Get player's upgrade levels
-    const enchantCostLevel = getScoreboardValue("enchant_cost_level", player) || 0;
-    const cursesBonusLevel = getScoreboardValue("curses_bonus_level", player) || 0;
-    
-    // Calculate discounts
-    const baseDiscount = enchantCostLevel * 0.03; // 3% per level
-    const curseDiscount = curseCount * cursesBonusLevel * 0.04; // 4% per level per curse
-    
-    // Apply discounts (ensuring it doesn't go below 1)
-    const finalCost = Math.max(1, Math.floor(baseCost * (1 - baseDiscount - curseDiscount)));
-    
-    return finalCost;
-}
-
 /**
  * Function to check if player can apply an enchantment based on upgrades
  * @param {object} player - The player object
@@ -752,11 +891,6 @@ function calculateEnchantmentCost(player, baseCost, curseCount = 0) {
  */
 function canApplyEnchantment(player, item, enchantLevel) {
     // Add the getScoreboardValue function for reference
-    function getScoreboardValue(scoreboard, player) {
-        const scoreboardObj = world.scoreboard.getObjective(scoreboard);
-        const scoreboardValue = scoreboardObj.getScore(player);
-        return scoreboardValue;
-    }
     const maxEnchantLevel = getScoreboardValue("max_enchant_level", player) || 0;
     const maxEnchantsLevel = getScoreboardValue("max_enchants_level", player) || 0;
     
