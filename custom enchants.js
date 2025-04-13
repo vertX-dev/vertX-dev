@@ -2,6 +2,319 @@ import { world, system, EquipmentSlot, EntityComponentTypes } from "@minecraft/s
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 
 
+
+// Enchants
+const enchants = {  
+    aetherExchange: {  
+        id: 10,  
+        lvl: 1,  
+        name: "§cAether's Exchange",  
+        type: "Curse",  
+        maxLvl: 2,  
+        description: "Convert all mana to double damage at Level 1 and store 80% of mana for up to 10x damage at Level 2",  
+        cost: 8000,  
+        enchantOn: ["weapon"],  
+        rarity: "legendary"  
+    },  
+    abyssalBreaker: {  
+        id: 11,  
+        lvl: 1,  
+        name: "§cAbyssal Breaker",  
+        type: "Curse",  
+        maxLvl: 5,  
+        description: "Gain +50% damage per level with a 35% chance per level to trigger a random curse.",  
+        cost: 7800,  
+        enchantOn: ["weapon"],  
+        rarity: "mythic"  
+    },  
+    wisdomWrath: {  
+        id: 12,  
+        lvl: 1,  
+        name: "§6Wisdom's Wrath",  
+        type: "Buff",  
+        maxLvl: 10,  
+        description: "Convert knowledge into power: +1 bonus damage per level every 10 levels.",  
+        cost: 4000,  
+        enchantOn: ["weapon"],  
+        rarity: "legendary"  
+    },  
+    permafrost: {  
+        id: 13,  
+        lvl: 1,  
+        name: "§9Permafrost",  
+        type: "Buff",  
+        maxLvl: 6,  
+        description: "Encases foes in ice. Each hit slows and has a 7.5% chance to summon powder snow; frozen enemies take massive bonus damage.",  
+        cost: 1000,  
+        enchantOn: ["heavy", "normal", "long", "medium"],  
+        rarity: "epic"  
+    },  
+    finalJudgement: {  
+        id: 14,  
+        lvl: 1,  
+        name: "§5Final Judgement",  
+        type: "Buff",  
+        maxLvl: 6,  
+        description: "Instantly decapitates foes below 15% health or when remaining health is less than 1x to 2.5x the hit damage. Kill chance scales from 1/20 to 5/20 (20/20 on level 6, but chances to obtain head remain 5/20) and guarantees a mob head drop.",  
+        cost: 4400,  
+        enchantOn: ["axe", "long", "medium"],  
+        rarity: "epic"  
+    },  
+    swarmSlayer: {  
+        id: 15,  
+        lvl: 1,  
+        name: "§2Swarm Slayer",  
+        type: "Buff",  
+        maxLvl: 4,  
+        description: "Adds +15% damage per level when mobs are nearby and applies Slowness I to surrounding foes.",  
+        cost: 700,  
+        enchantOn: ["weapon"],  
+        rarity: "uncommon"  
+    },  
+    sweepingEdge: {  
+        id: 16,  
+        lvl: 1,  
+        name: "§eSweeping Edge",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Enhances sweeping strikes with +20% bonus damage against multiple foes.",  
+        cost: 400,  
+        enchantOn: ["long", "heavy", "polearm"],  
+        rarity: "rare"  
+    },  
+    quickstrike: {  
+        id: 17,  
+        lvl: 1,  
+        name: "§eQuickstrike",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Increase attack speed by 10% per level.",  
+        cost: 1250,  
+        enchantOn: ["weapon"],  
+        rarity: "uncommon"  
+    },  
+    lifesteal: {  
+        id: 18,  
+        lvl: 1,  
+        name: "§dLifesteal",  
+        type: "Buff",  
+        maxLvl: 4,  
+        description: "Converts a portion of damage dealt into health. Restores 2.5% of damage per level.",  
+        cost: 1800,  
+        enchantOn: ["weapon"],  
+        rarity: "rare"  
+    },  
+    gravityPull: {  
+        id: 19,  
+        lvl: 1,  
+        name: "§bGravity Pull",  
+        type: "Buff",  
+        maxLvl: 3,  
+        description: "Pulls nearby enemies towards the landing area of your projectile, with pull strength increasing per level.",  
+        cost: 1700,  
+        enchantOn: ["ranged", "trident"],  
+        rarity: "epic"  
+    },  
+    enderSlayer: {  
+        id: 20,  
+        lvl: 1,  
+        name: "§5Ender Slayer",  
+        type: "Buff",  
+        maxLvl: 8,  
+        description: "Empowers your weapon to deal an extra 9% damage per level against mobs from the End dimension.",  
+        cost: 800,  
+        enchantOn: ["weapon"],  
+        rarity: "rare"  
+    },  
+    lightWeight: {  
+        id: 21,  
+        lvl: 1,  
+        name: "§eLight Weight",  
+        type: "Trade Off",  
+        maxLvl: 5,  
+        description: "Enhances movement speed by +5% per level while reducing defense by -1% per level. Ideal for agile warriors willing to trade a bit of protection for increased mobility.",  
+        cost: 300,  
+        enchantOn: ["armor"],  
+        rarity: "uncommon"  
+    },  
+    nightVision: {  
+        id: 22,  
+        lvl: 1,  
+        name: "§aNight's Sight",  
+        type: "Buff",  
+        maxLvl: 1,  
+        description: "Grants the wearer Night Vision, allowing clear visibility in the dark. Perfect for exploring caves or nighttime adventures.",  
+        cost: 1700,  
+        enchantOn: ["helmet"],  
+        rarity: "rare"  
+    },  
+    enderHunter: {  
+        id: 23,  
+        lvl: 1,  
+        name: "§5Ender Hunter",  
+        type: "Buff",  
+        maxLvl: 3,  
+        description: "Enhances your bow or crossbow for attacks against Endermen. At Level 1, Endermen take only 60% of your normal damage (-40% penalty), while at Level 3 they take 120% (+20% bonus). Level 2 offers an intermediate effect (-10%)",  
+        cost: 2500,  
+        enchantOn: ["ranged", "trident"],  
+        rarity: "epic"  
+    },  
+    manaBarrier: {  
+        id: 24,  
+        lvl: 1,  
+        name: "§bMana Barrier",  
+        type: "Trade Off",  
+        maxLvl: 3,  
+        description: "Converts 5% mana per level into defense. Grants +0.5 defense per mana used, with +0.5 extra per level. Caps at 500 defense. When hit, drains mana by 70% (L1), 40% (L2), or 10% (L3) of damage",  
+        cost: 2000,  
+        enchantOn: ["armor", "elytra"],  
+        rarity: "rare"  
+    },  
+    skyPiercer: {  
+        id: 25,  
+        lvl: 1,  
+        name: "§3Sky Piercer",  
+        type: "Buff",  
+        maxLvl: 6,  
+        description: "Grants +10% damage per level while airborne. Unleash greater power from the skies",  
+        cost: 2500,  
+        enchantOn: ["elytra"],  
+        rarity: "epic"  
+    },  
+    stormChain: {  
+        id: 26,  
+        lvl: 1,  
+        name: "§5Storm Chain",  
+        type: "Buff",  
+        maxLvl: 7,  
+        description: "Strikes up to 8 nearby enemies with lightning, chaining from the target. Range and count scale with level (up to 12 blocks). Chained enemies take 30% damage and are stunned for 1s",  
+        cost: 8200,  
+        enchantOn: ["bow"],  
+        rarity: "legendary"  
+    },  
+    curseOfBreaking: {  
+        id: 27,  
+        lvl: 1,  
+        name: "§cCurse of Breaking",  
+        type: "Curse",  
+        maxLvl: 3,  
+        description: "Item breaks 2x/3x/4x faster depending on level. Durability is consumed rapidly.",  
+        cost: -1200,  
+        enchantOn: ["all"],  
+        rarity: "common"  
+    },  
+    curseOfSlippery: {  
+        id: 28,  
+        lvl: 1,  
+        name: "§cCurse of Slippery",  
+        type: "Curse",  
+        maxLvl: 1,  
+        description: "Makes items occasionally slip from your hand. The item is randomly dropped while using tools or weapons.",  
+        cost: -7000,  
+        enchantOn: ["weapons", "ranged", "tool"],  
+        rarity: "rare"  
+    },  
+    curseOfIncompatibility: {  
+        id: 29,  
+        lvl: 1,  
+        name: "§cCurse of Incompatibility",  
+        type: "Curse",  
+        maxLvl: 1,  
+        description: "Makes all other enchantments incompatible with the item",  
+        cost: -3000,  
+        enchantOn: ["all"],  
+        rarity: "legendary"  
+    },  
+    enlightenment: {  
+        id: 30,  
+        lvl: 1,  
+        name: "§eEnlightenment",  
+        type: "Buff",  
+        maxLvl: 10,  
+        description: "Increases experience gained from any source by 12.5% per level. Stacks with other armor pieces.",  
+        cost: 3500,  
+        enchantOn: ["armor", "elytra"],  
+        rarity: "epic"  
+    },  
+    curseOfCorrosion: {  
+        id: 31,  
+        lvl: 1,  
+        name: "§cCurse of Corrosion",  
+        type: "Curse",  
+        maxLvl: 20,  
+        description: "Deals damage to the player when in contact with water or during rain. Takes 2 damage per level every 3 seconds when outside in rain or touching water.",  
+        cost: -400,  
+        enchantOn: ["armor", "elytra"],  
+        rarity: "legendary"  
+    },  
+    curseOfOcean: {  
+        id: 32,  
+        lvl: 1,  
+        name: "§cCurse of Ocean",  
+        type: "Curse",  
+        maxLvl: 5,  
+        description: "Makes the player drown instantly upon contact with water, taking 10x damage from drowning. Grants additional debuffs: Blindness, Weakness, Mining Fatigue, Slowness, and Nausea.",  
+        cost: -500,  
+        enchantOn: ["armor", "elytra"],  
+        rarity: "legendary"  
+    },  
+    heatResistance: {  
+        id: 33,  
+        lvl: 1,  
+        name: "§eHeat Resistance",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Provides passive protection against high temperatures, reducing heat damage and preventing overheating.",  
+        cost: 2200,  
+        enchantOn: ["armor"],  
+        rarity: "rare"  
+    },  
+    coldResistance: {  
+        id: 34,  
+        lvl: 1,  
+        name: "§bCold Resistance",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Provides passive protection against cold, reducing the risk of frostbite and mitigating slowing effects from low temperatures.",  
+        cost: 2200,  
+        enchantOn: ["armor"],  
+        rarity: "rare"  
+    },  
+    frost: {  
+        id: 35,  
+        lvl: 1,  
+        name: "§3Frost",  
+        type: "Buff",  
+        maxLvl: 7,  
+        description: "Activates only when ambient temperature is high; temporarily reduces the surrounding temperature and then goes into cooldown.",  
+        cost: 1800,  
+        enchantOn: ["armor"],  
+        rarity: "epic"  
+    },  
+    thermalEquilibrium: {  
+        id: 36,  
+        lvl: 1,  
+        name: "§aThermal Equilibrium",  
+        type: "Buff",  
+        maxLvl: 5,  
+        description: "Combines heat and cold resistance, providing balanced protection against both high temperatures and freezing conditions.",  
+        cost: 3000,  
+        enchantOn: ["armor"],  
+        rarity: "epic"  
+    },  
+    markExplosion: {  
+        id: 37,  
+        lvl: 1,  
+        name: "§6Mark & Burst",  
+        type: "Buff",  
+        maxLvl: 1,  
+        description: "Marks an enemy on the first shot. On the second shot, triggers an explosion causing 500% AoE explosion based on normal damage.",  
+        cost: 9000,  
+        enchantOn: ["ranged"],  
+        rarity: "legendary"  
+    }  
+};
+
 // Function to convert an integer (up to 20) to a Roman numeral
 function intToRoman(num) {
   const valueSymbols = [
@@ -58,331 +371,16 @@ function randomCurse(count, level, list) {
 }
 
 
-// Enchants
-const enchants = {  
-    aetherExchange: {  
-        id: 10,  
-        lvl: 1,  
-        name: "§cAether's Exchange",  
-        type: "Curse",  
-        maxLvl: 2,  
-        description: "Convert all mana to double damage at Level 1 and store 80% of mana for up to 10x damage at Level 2",  
-        cost: 8000,  
-        enchantOn: "sword",  
-        rarity: "legendary"  
-    },  
-    abyssalBreaker: {  
-        id: 11,  
-        lvl: 1,  
-        name: "§cAbyssal Breaker",  
-        type: "Curse",  
-        maxLvl: 5,  
-        description: "Gain +50% damage per level with a 35% chance per level to trigger a random curse.",  
-        cost: 7800,  
-        enchantOn: "sword",  
-        rarity: "mythic"  
-    },  
-    wisdomWrath: {  
-        id: 12,  
-        lvl: 1,  
-        name: "§6Wisdom's Wrath",  
-        type: "Buff",  
-        maxLvl: 10,  
-        description: "Convert knowledge into power: +1 bonus damage per level every 10 levels.",  
-        cost: 4000,  
-        enchantOn: "sword",  
-        rarity: "legendary"  
-    },  
-    permafrost: {  
-        id: 13,  
-        lvl: 1,  
-        name: "§9Permafrost",  
-        type: "Buff",  
-        maxLvl: 6,  
-        description: "Encases foes in ice. Each hit slows and has a 7.5% chance to summon powder snow; frozen enemies take massive bonus damage.",  
-        cost: 1000,  
-        enchantOn: "sword",  
-        rarity: "epic"  
-    },  
-    finalJudgement: {  
-        id: 14,  
-        lvl: 1,  
-        name: "§5Final Judgement",  
-        type: "Buff",  
-        maxLvl: 6,  
-        description: "Instantly decapitates foes below 15% health or when remaining health is less than 1x to 2.5x the hit damage. Kill chance scales from 1/20 to 5/20 (20/20 on level 6, but chances to obtain head remain 5/20) and guarantees a mob head drop.",  
-        cost: 4400,  
-        enchantOn: "sword",  
-        rarity: "epic"  
-    },  
-    swarmSlayer: {  
-        id: 15,  
-        lvl: 1,  
-        name: "§2Swarm Slayer",  
-        type: "Buff",  
-        maxLvl: 4,  
-        description: "Adds +15% damage per level when mobs are nearby and applies Slowness I to surrounding foes.",  
-        cost: 700,  
-        enchantOn: "sword",  
-        rarity: "uncommon"  
-    },  
-    sweepingEdge: {  
-        id: 16,  
-        lvl: 1,  
-        name: "§eSweeping Edge",  
-        type: "Buff",  
-        maxLvl: 5,  
-        description: "Enhances sweeping strikes with +20% bonus damage against multiple foes.",  
-        cost: 400,  
-        enchantOn: "sword",  
-        rarity: "rare"  
-    },  
-    quickstrike: {  
-        id: 17,  
-        lvl: 1,  
-        name: "§eQuickstrike",  
-        type: "Buff",  
-        maxLvl: 5,  
-        description: "Increase attack speed by 10% per level.",  
-        cost: 1250,  
-        enchantOn: "sword",  
-        rarity: "uncommon"  
-    },  
-    lifesteal: {  
-        id: 18,  
-        lvl: 1,  
-        name: "§dLifesteal",  
-        type: "Buff",  
-        maxLvl: 4,  
-        description: "Converts a portion of damage dealt into health. Restores 2.5% of damage per level.",  
-        cost: 1800,  
-        enchantOn: "sword",  
-        rarity: "rare"  
-    },  
-    gravityPull: {  
-        id: 19,  
-        lvl: 1,  
-        name: "§bGravity Pull",  
-        type: "Buff",  
-        maxLvl: 3,  
-        description: "Pulls nearby enemies towards the landing area of your projectile, with pull strength increasing per level.",  
-        cost: 1700,  
-        enchantOn: "bow",  
-        rarity: "epic"  
-    },  
-    enderSlayer: {  
-        id: 20,  
-        lvl: 1,  
-        name: "§5Ender Slayer",  
-        type: "Buff",  
-        maxLvl: 8,  
-        description: "Empowers your weapon to deal an extra 9% damage per level against mobs from the End dimension.",  
-        cost: 800,  
-        enchantOn: "sword",  
-        rarity: "rare"  
-    },  
-    lightWeight: {  
-        id: 21,  
-        lvl: 1,  
-        name: "§eLight Weight",  
-        type: "Trade Off",  
-        maxLvl: 5,  
-        description: "Enhances movement speed by +5% per level while reducing defense by -1% per level. Ideal for agile warriors willing to trade a bit of protection for increased mobility.",  
-        cost: 300,  
-        enchantOn: "armor",  
-        rarity: "uncommon"  
-    },  
-    nightVision: {  
-        id: 22,  
-        lvl: 1,  
-        name: "§aNight's Sight",  
-        type: "Buff",  
-        maxLvl: 1,  
-        description: "Grants the wearer Night Vision, allowing clear visibility in the dark. Perfect for exploring caves or nighttime adventures.",  
-        cost: 1700,  
-        enchantOn: "helmet",  
-        rarity: "rare"  
-    },  
-    enderHunter: {  
-        id: 23,  
-        lvl: 1,  
-        name: "§5Ender Hunter",  
-        type: "Buff",  
-        maxLvl: 3,  
-        description: "Enhances your bow or crossbow for attacks against Endermen. At Level 1, Endermen take only 60% of your normal damage (-40% penalty), while at Level 3 they take 120% (+20% bonus). Level 2 offers an intermediate effect (-10%)",  
-        cost: 2500,  
-        enchantOn: "bow,crossbow",  
-        rarity: "epic"  
-    },  
-    manaBarrier: {  
-        id: 24,  
-        lvl: 1,  
-        name: "§bMana Barrier",  
-        type: "Trade Off",  
-        maxLvl: 3,  
-        description: "Converts 5% mana per level into defense. Grants +0.5 defense per mana used, with +0.5 extra per level. Caps at 500 defense. When hit, drains mana by 70% (L1), 40% (L2), or 10% (L3) of damage",  
-        cost: 2000,  
-        enchantOn: "armor",  
-        rarity: "rare"  
-    },  
-    skyPiercer: {  
-        id: 25,  
-        lvl: 1,  
-        name: "§3Sky Piercer",  
-        type: "Buff",  
-        maxLvl: 6,  
-        description: "Grants +10% damage per level while airborne. Unleash greater power from the skies",  
-        cost: 2500,  
-        enchantOn: "elytra",  
-        rarity: "epic"  
-    },  
-    stormChain: {  
-        id: 26,  
-        lvl: 1,  
-        name: "§5Storm Chain",  
-        type: "Buff",  
-        maxLvl: 7,  
-        description: "Strikes up to 8 nearby enemies with lightning, chaining from the target. Range and count scale with level (up to 12 blocks). Chained enemies take 30% damage and are stunned for 1s",  
-        cost: 8200,  
-        enchantOn: "bow",  
-        rarity: "legendary"  
-    },  
-    curseOfBreaking: {  
-        id: 27,  
-        lvl: 1,  
-        name: "§cCurse of Breaking",  
-        type: "Curse",  
-        maxLvl: 3,  
-        description: "Item breaks 2x/3x/4x faster depending on level. Durability is consumed rapidly.",  
-        cost: 100,  
-        enchantOn: "all",  
-        rarity: "common"  
-    },  
-    curseOfSlippery: {  
-        id: 28,  
-        lvl: 1,  
-        name: "§cCurse of Slippery",  
-        type: "Curse",  
-        maxLvl: 1,  
-        description: "Makes items occasionally slip from your hand. The item is randomly dropped while using tools or weapons.",  
-        cost: 100,  
-        enchantOn: "tools, weapons",  
-        rarity: "rare"  
-    },  
-    curseOfIncompatibility: {  
-        id: 29,  
-        lvl: 1,  
-        name: "§cCurse of Incompatibility",  
-        type: "Curse",  
-        maxLvl: 1,  
-        description: "Makes all other enchantments incompatible with the item",  
-        cost: 20000,  
-        enchantOn: "all",  
-        rarity: "legendary"  
-    },  
-    enlightenment: {  
-        id: 30,  
-        lvl: 1,  
-        name: "§eEnlightenment",  
-        type: "Buff",  
-        maxLvl: 10,  
-        description: "Increases experience gained from any source by 12.5% per level. Stacks with other armor pieces.",  
-        cost: 3500,  
-        enchantOn: "armor",  
-        rarity: "epic"  
-    },  
-    curseOfCorrosion: {  
-        id: 31,  
-        lvl: 1,  
-        name: "§cCurse of Corrosion",  
-        type: "Curse",  
-        maxLvl: 20,  
-        description: "Deals damage to the player when in contact with water or during rain. Takes 2 damage per level every 3 seconds when outside in rain or touching water.",  
-        cost: 700,  
-        enchantOn: "all",  
-        rarity: "legendary"  
-    },  
-    curseOfOcean: {  
-        id: 32,  
-        lvl: 1,  
-        name: "§cCurse of Ocean",  
-        type: "Curse",  
-        maxLvl: 5,  
-        description: "Makes the player drown instantly upon contact with water, taking 10x damage from drowning. Grants additional debuffs: Blindness, Weakness, Mining Fatigue, Slowness, and Nausea.",  
-        cost: 0,  
-        enchantOn: "all",  
-        rarity: "legendary"  
-    },  
-    heatResistance: {  
-        id: 33,  
-        lvl: 1,  
-        name: "§eHeat Resistance",  
-        type: "Buff",  
-        maxLvl: 5,  
-        description: "Provides passive protection against high temperatures, reducing heat damage and preventing overheating.",  
-        cost: 2200,  
-        enchantOn: "armor",  
-        rarity: "rare"  
-    },  
-    coldResistance: {  
-        id: 34,  
-        lvl: 1,  
-        name: "§bCold Resistance",  
-        type: "Buff",  
-        maxLvl: 5,  
-        description: "Provides passive protection against cold, reducing the risk of frostbite and mitigating slowing effects from low temperatures.",  
-        cost: 2200,  
-        enchantOn: "armor",  
-        rarity: "rare"  
-    },  
-    frost: {  
-        id: 35,  
-        lvl: 1,  
-        name: "§3Frost",  
-        type: "Buff",  
-        maxLvl: 7,  
-        description: "Activates only when ambient temperature is high; temporarily reduces the surrounding temperature and then goes into cooldown.",  
-        cost: 1800,  
-        enchantOn: "armor",  
-        rarity: "epic"  
-    },  
-    thermalEquilibrium: {  
-        id: 36,  
-        lvl: 1,  
-        name: "§aThermal Equilibrium",  
-        type: "Buff",  
-        maxLvl: 5,  
-        description: "Combines heat and cold resistance, providing balanced protection against both high temperatures and freezing conditions.",  
-        cost: 3000,  
-        enchantOn: "armor",  
-        rarity: "epic"  
-    },  
-    markExplosion: {  
-        id: 37,  
-        lvl: 1,  
-        name: "§6Mark & Burst",  
-        type: "Buff",  
-        maxLvl: 1,  
-        description: "Marks an enemy on the first shot. On the second shot, triggers an explosion causing 500% AoE explosion based on normal damage.",  
-        cost: 9000,  
-        enchantOn: "bow,crossbow",  
-        rarity: "legendary"  
-    }  
-};
-
 world.afterEvents.chatSend.subscribe((eventData) => {
     const message = eventData.message.trim();
 
     // Check if the message starts with .enchant command
     if (message.startsWith(".enchant")) {
         const player = eventData.sender;
-        const itemStack = player.getComponent("minecraft:equippable")?.getEquipment("mainhand");
+        const itemStack = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
         const itemId = itemStack?.typeId;
-
-        if (!itemId) {
-            player.sendMessage("§cYou're not holding any item!");
-            return;
-        }
+        
+        player.sendMessage("§cYou have 2.5 seconds to close chat for enchanting");
 
         // Create the main enchanting UI
         const enchantingMainUI = new ActionFormData()
@@ -394,104 +392,178 @@ world.afterEvents.chatSend.subscribe((eventData) => {
             .button("Library");
 
         // Show the form to the player and handle the response.
-        enchantingMainUI.show(player).then((response) => {
-            if (!response.canceled) {
-                if (response.selection == 0) handleEnchant(player, itemId, itemStack);
-                if (response.selection == 1) handleEnchantWithBook(player, itemId, itemStack);
-                if (response.selection == 2) handleUpgrade(player);
-                if (response.selection == 3) handleLibrary(player);
-            }
-        });
+        system.runTimeout(() => {
+            enchantingMainUI.show(player).then((response) => {
+                if (!response.canceled) {
+                    if (response.selection == 0) handleEnchant(player, itemId, itemStack);
+                    if (response.selection == 1) handleEnchantWithBook(player, itemId, itemStack);
+                    if (response.selection == 2) handleUpgrade(player);
+                    if (response.selection == 3) handleLibrary(player);
+                }
+            });
+        },50);
+        
     }
 });
 
 
-function handleEnchant(player, itemId, itemStack) {
-    const knownTypes = [
-        // Book
-        "wuco:book",
+function getWeaponTags(itemId) {
+    // A mapping for known weapons and their manually assigned tags.
+    // You can add or adjust the tags here as needed.
+    const weaponTagMapping = {
+        "sai":         ["weapon", "sai", "light", "short"],
+        "nunchaku":    ["weapon", "nunchaku", "light", "short"],
+        "dagger":      ["weapon", "dagger", "light", "short"],
+        "rapier":      ["weapon", "rapier", "light", "long"],
+        "kama":        ["weapon", "kama", "normal", "short"],
+        "katana":      ["weapon", "katana", "normal", "long"],
+        "gladius":     ["weapon", "gladius", "normal", "short"],
+        "sword":       ["weapon", "sword", "normal", "medium"],
+        "cutlass":     ["weapon", "cutlass", "normal", "medium"],
+        "machete":     ["weapon", "machete", "normal", "medium"],
+        "scimitar":    ["weapon", "scimitar", "light", "short"],
+        "broadsword":  ["weapon", "broadsword", "heavy", "medium"],
+        "longsword":   ["weapon", "longsword", "heavy", "long"],
+        "staff":       ["weapon", "staff", "blunt", "long"],
+        "morningstar": ["weapon", "morningstar", "heavy", "medium"],
+        "mace":        ["weapon", "mace", "blunt"],
+        "khopesh":     ["weapon", "khopesh", "normal", "short"],
+        "cleaver":     ["weapon", "cleaver", "normal","heavy", "short"],
+        "lance":       ["weapon", "lance", "polearm", "long"],
+        "claymore":    ["weapon", "claymore", "heavy", "long"],
+        "hammer":      ["weapon", "hammer", "heavy", "blunt"],
+        "battleaxe":   ["weapon", "battleaxe", "medium"],
+        "greatsword":  ["weapon", "greatsword", "heavy", "long"],
+        "trident":     ["weapon", "trident", "polearm"],
+        "bow":         ["ranged", "bow"],
+        "crossbow":    ["ranged", "crossbow"],
+        "helmet":      ["armor", "helmet"],
+        "chestplate":  ["armor", "chestplate"],
+        "leggings":    ["armor", "leggings"],
+        "boots":       ["armor", "boots"],
+        "axe":         ["tool", "axe"],
+        "elytra":      ["elytra"]
+    };
 
-        // Armor
-        "helmet", "chestplate", "leggings", "boots",
-
-        // Tools
-        "pickaxe", "axe", "shovel", "hoe", "shears",
-
-        // Weapons
-        "sai", "nunchaku", "dagger", "rapier", "kama", "katana", "gladius", "sword",
-        "cutlass", "machete", "scimitar", "broadsword", "longsword", "staff",
-        "morningstar", "mace", "khopesh", "cleaver", "lance", "claymore", "hammer",
-        "battleaxe", "greatsword", "trident", "bow", "crossbow"
-    ];
-
-    const matchedType = knownTypes.find(type => itemId.includes(type));
-
-    if (!matchedType) {
-        player.sendMessage("§cThis item cannot be enchanted.");
-        return;
-    }
-
-    player.sendMessage(`§aDetected item type: ${matchedType}`);
-    sharedEnchantLogic(player, matchedType, itemStack);
-}
-
-// Function to handle the "Enchant with Book" option.
-function handleEnchantWithBook(player, itemId, itemStack) {
-    // Check if the player holds a book in their off hand.
-    const bookStack = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Offhand);
-    const bookId = bookStack?.typeId;
-    if (!bookId || bookId !== "wuco:book") {
-        player.sendMessage("§eYou must hold a book in your offhand!");
-        return;
-    }
-    
-    // Retrieve lore from both the item and the book.
-    let itemLore = itemStack.getLore() || [];
-    let bookLore = bookStack.getLore() || [];
-    
-    // Parse the item and book lore into enchantments and general lore.
-    let { enchants: itemEnchants, otherLore: itemOtherLore } = parseEnchantments(itemLore);
-    let { enchants: bookEnchants } = parseEnchantments(bookLore);
-    
-    // Merge enchantments from the book into the item.
-    // For overlapping enchantments, keep the highest level.
-    for (let enchant in bookEnchants) {
-        if (itemEnchants.hasOwnProperty(enchant)) {
-            itemEnchants[enchant] = Math.max(itemEnchants[enchant], bookEnchants[enchant]);
-        } else {
-            itemEnchants[enchant] = bookEnchants[enchant];
+    // Loop through mapping and see if itemId contains one of the keys.
+    // You can adjust this lookup to be an exact match if needed.
+    for (const key in weaponTagMapping) {
+        if (itemId.includes(key)) {
+            // Always include the "all" tag.
+            return ["all", ...weaponTagMapping[key]];
         }
     }
-    
-    // Check if the book has the "Abyssal Breaker" enchantment using its display name from the enchants object.
-    if (bookEnchants.hasOwnProperty(enchants.abyssalBreaker.name)) {
-        // Assume the randomCurse function exists and returns an object:
-        // { name: <curse name>, level: <numeric level> }
-        let curse = randomCurse();
-        itemEnchants[curse.name] = curse.level;
-    }
-    
-    // Rebuild the lore for the item.
-    // Start with any non-enchantment lore and then append each enchantment with its level in Roman numeral format.
-    let newLore = itemOtherLore.slice();
-    for (let enchantName in itemEnchants) {
-        let romanLevel = intToRoman(itemEnchants[enchantName]);
-        newLore.push(enchantName + " " + romanLevel);
-    }
-    
-    // Update the item with the new lore.
-    itemStack.setLore(newLore);
-    player.sendMessage("Item enchanted successfully.");
-    
-    // Replace the enchanted book with a normal book.
-    // Clear the book's lore and set its type to a normal book.
-    bookStack.setLore([]);
-    bookStack.setType("minecraft:book");
-    let hands = player.getComponent("minecraft:equippable");
-    hands.setEquipment(EquipmentSlot.Mainhand, itemStack);
-    hands.setEquipment(EquipmentSlot.Offhand, bookStack);
-    
+
+    player.sendMessage("§cThis item is not recognized as a known weapon.");
+    return [];
 }
+
+//Combine enchantments
+function combineEnchants(itemEnchants, bookEnchants) {
+    // Combine the enchantments
+    const combinedEnchants = { ...itemEnchants };
+    
+    // Merge enchantments from book
+    for (let enchant in bookEnchants) {
+        if (combinedEnchants.hasOwnProperty(enchant)) {
+            combinedEnchants[enchant] = Math.max(combinedEnchants[enchant], bookEnchants[enchant]);
+        } else {
+            combinedEnchants[enchant] = bookEnchants[enchant];
+        }
+    }
+
+    // Check for Abyssal Breaker
+    if (bookEnchants.hasOwnProperty(enchants.abyssalBreaker.name)) {
+        let curse = randomCurse();
+        combinedEnchants[curse.name] = curse.level;
+    }
+
+    return combinedEnchants;
+}
+
+function handleEnchantWithBook(player, itemId, itemStack) {
+    console.log(`[DEBUG] Starting enchanting process`);
+
+    try {
+        // Get the equipment component
+        const equipment = player.getComponent("minecraft:equippable");
+        if (!equipment) {
+            player.sendMessage("§cError: Could not access equipment!");
+            return;
+        }
+
+        // Get the book from offhand
+        const bookStack = equipment.getEquipment(EquipmentSlot.Offhand);
+        if (!bookStack || bookStack.typeId !== "wuco:book") {
+            player.sendMessage("§eYou must hold a book in your offhand!");
+            return;
+        }
+
+        // Get the item's current lore
+        const itemLore = itemStack.getLore ? itemStack.getLore() : [];
+        const bookLore = bookStack.getLore ? bookStack.getLore() : [];
+
+        console.log('[DEBUG] Current lore:', { itemLore, bookLore });
+
+        // Parse enchantments
+        let { enchants: itemEnchants, otherLore: itemOtherLore } = parseEnchantments(itemLore);
+        let { enchants: bookEnchants } = parseEnchantments(bookLore);
+
+        // Combine enchantments using the new function
+        const combinedEnchants = combineEnchants(itemEnchants, bookEnchants);
+
+        // Build new lore
+        let newLore = [...itemOtherLore];
+        for (let enchantName in combinedEnchants) {
+            let romanLevel = intToRoman(combinedEnchants[enchantName]);
+            newLore.push(enchantName + " " + romanLevel);
+        }
+
+        // Create new ItemStack for the enchanted item
+        const newItem = itemStack.clone();
+        if (newItem.setLore) {
+            newItem.setLore(newLore);
+            console.log(newItem.getLore());
+        }
+
+        // Update both hands
+        try {
+            // Update main hand
+            let equipmen = player.getComponent("minecraft:equippable");
+            equipmen.setEquipment(EquipmentSlot.Mainhand, newItem);
+            player.runCommand("replaceitem entity @s slot.weapon.offhand 0 air");
+
+            player.sendMessage("§aItem enchanted successfully!");
+        } catch (equipError) {
+            console.log('[ERROR] Equipment update failed:', equipError);
+            
+            // Try alternative inventory approach
+            try {
+                const inventory = player.getComponent("minecraft:inventory");
+                if (inventory && inventory.container) {
+                    // Update main hand item
+                    inventory.container.setItem(player.selectedSlot, newItem);
+                    player.sendMessage("§aItem enchanted successfully! (alt method)");
+                }
+            } catch (invError) {
+                console.log('[ERROR] Inventory update failed:', invError);
+                player.sendMessage("§cFailed to update items!");
+            }
+        }
+
+    } catch (error) {
+        console.log('[ERROR] Enchanting process failed:', error);
+        player.sendMessage("§cAn error occurred while enchanting!");
+    }
+}
+
+
+
+
+//Enchant
+
+
+
 
 // Function to handle the "Library" option.
 function handleLibrary(player) {
@@ -707,31 +779,6 @@ function canApplyEnchantment(player, item, enchantLevel) {
     return true;
 }
 
-// Setup necessary scoreboard objectives
-function setupScoreboards() {
-    const scoreboards = [
-        "enchant_cost_level",
-        "curses_bonus_level",
-        "max_enchant_level",
-        "max_enchants_level",
-        "enchant_points"
-    ];
-    
-    for (const scoreboard of scoreboards) {
-        try {
-            world.getDimension("overworld").runCommand(`scoreboard objectives add ${scoreboard} dummy`);
-        } catch (error) {
-            // Objective already exists
-        }
-    }
-}
-
-// Initialize the system
-setupScoreboards();
-
-function sharedEnchantLogic(player, matchedType) {
-    
-}
 
 
 // Helper function to parse enchantments from a lore array.
@@ -760,3 +807,4 @@ function parseEnchantments(loreArray) {
     }
     return { enchants, otherLore };
 }
+
