@@ -7,7 +7,7 @@ import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 const enchants = {  
     aetherExchange: {  
         id: 10,  
-        lvl: 1,  
+        lvl: 1000,  
         name: "§cAether's Exchange",  
         type: "Curse",  
         maxLvl: 2,  
@@ -18,7 +18,7 @@ const enchants = {
     },  
     abyssalBreaker: {  
         id: 11,  
-        lvl: 1,  
+        lvl: 999,  
         name: "§cAbyssal Breaker",  
         type: "Curse",  
         maxLvl: 5,  
@@ -29,7 +29,7 @@ const enchants = {
     },  
     wisdomWrath: {  
         id: 12,  
-        lvl: 1,  
+        lvl: 998,  
         name: "§6Wisdom's Wrath",  
         type: "Buff",  
         maxLvl: 10,  
@@ -40,7 +40,7 @@ const enchants = {
     },  
     permafrost: {  
         id: 13,  
-        lvl: 1,  
+        lvl: 899,  
         name: "§9Permafrost",  
         type: "Buff",  
         maxLvl: 6,  
@@ -51,7 +51,7 @@ const enchants = {
     },  
     finalJudgement: {  
         id: 14,  
-        lvl: 1,  
+        lvl: 997,  
         name: "§5Final Judgement",  
         type: "Buff",  
         maxLvl: 6,  
@@ -62,7 +62,7 @@ const enchants = {
     },  
     swarmSlayer: {  
         id: 15,  
-        lvl: 1,  
+        lvl: 996,  
         name: "§2Swarm Slayer",  
         type: "Buff",  
         maxLvl: 4,  
@@ -73,7 +73,7 @@ const enchants = {
     },  
     sweepingEdge: {  
         id: 16,  
-        lvl: 1,  
+        lvl: 899,  
         name: "§eSweeping Edge",  
         type: "Buff",  
         maxLvl: 5,  
@@ -84,7 +84,7 @@ const enchants = {
     },  
     quickstrike: {  
         id: 17,  
-        lvl: 1,  
+        lvl: 995,  
         name: "§eQuickstrike",  
         type: "Buff",  
         maxLvl: 5,  
@@ -95,7 +95,7 @@ const enchants = {
     },  
     lifesteal: {  
         id: 18,  
-        lvl: 1,  
+        lvl: 994,  
         name: "§dLifesteal",  
         type: "Buff",  
         maxLvl: 4,  
@@ -106,7 +106,7 @@ const enchants = {
     },  
     gravityPull: {  
         id: 19,  
-        lvl: 1,  
+        lvl: 799,  
         name: "§bGravity Pull",  
         type: "Buff",  
         maxLvl: 3,  
@@ -117,7 +117,7 @@ const enchants = {
     },  
     enderSlayer: {  
         id: 20,  
-        lvl: 1,  
+        lvl: 500,  
         name: "§5Ender Slayer",  
         type: "Buff",  
         maxLvl: 8,  
@@ -128,7 +128,7 @@ const enchants = {
     },  
     lightWeight: {  
         id: 21,  
-        lvl: 1,  
+        lvl: 300,  
         name: "§eLight Weight",  
         type: "Trade Off",  
         maxLvl: 5,  
@@ -139,7 +139,7 @@ const enchants = {
     },  
     nightVision: {  
         id: 22,  
-        lvl: 1,  
+        lvl: 301,  
         name: "§aNight's Sight",  
         type: "Buff",  
         maxLvl: 1,  
@@ -150,7 +150,7 @@ const enchants = {
     },  
     enderHunter: {  
         id: 23,  
-        lvl: 1,  
+        lvl: 799,  
         name: "§5Ender Hunter",  
         type: "Buff",  
         maxLvl: 3,  
@@ -161,7 +161,7 @@ const enchants = {
     },  
     manaBarrier: {  
         id: 24,  
-        lvl: 1,  
+        lvl: 302,  
         name: "§bMana Barrier",  
         type: "Trade Off",  
         maxLvl: 3,  
@@ -172,7 +172,7 @@ const enchants = {
     },  
     skyPiercer: {  
         id: 25,  
-        lvl: 1,  
+        lvl: 399,  
         name: "§3Sky Piercer",  
         type: "Buff",  
         maxLvl: 6,  
@@ -183,7 +183,7 @@ const enchants = {
     },  
     stormChain: {  
         id: 26,  
-        lvl: 1,  
+        lvl: 799,  
         name: "§5Storm Chain",  
         type: "Buff",  
         maxLvl: 7,  
@@ -194,7 +194,7 @@ const enchants = {
     },  
     curseOfBreaking: {  
         id: 27,  
-        lvl: 1,  
+        lvl: 666,  
         name: "§cCurse of Breaking",  
         type: "Curse",  
         maxLvl: 3,  
@@ -205,7 +205,7 @@ const enchants = {
     },  
     curseOfSlippery: {  
         id: 28,  
-        lvl: 1,  
+        lvl: 667,  
         name: "§cCurse of Slippery",  
         type: "Curse",  
         maxLvl: 1,  
@@ -214,20 +214,20 @@ const enchants = {
         enchantOn: ["weapons", "ranged", "tool"],  
         rarity: "rare"  
     },  
-    curseOfIncompatibility: {  
-        id: 29,  
-        lvl: 1,  
+    curseOfIncompatibility: {  //replaced
+        id: 29999,  
+        lvl: 19999,  
         name: "§cCurse of Incompatibility",  
         type: "Curse",  
-        maxLvl: 1,  
+        maxLvl: 40,  
         description: "Makes all other enchantments incompatible with the item",  
-        cost: -3000,  
+        cost: -3000000,  
         enchantOn: ["all"],  
         rarity: "legendary"  
     },  
     enlightenment: {  
         id: 30,  
-        lvl: 1,  
+        lvl: 307,  
         name: "§eEnlightenment",  
         type: "Buff",  
         maxLvl: 10,  
@@ -238,7 +238,7 @@ const enchants = {
     },  
     curseOfCorrosion: {  
         id: 31,  
-        lvl: 1,  
+        lvl: 900,  
         name: "§cCurse of Corrosion",  
         type: "Curse",  
         maxLvl: 20,  
@@ -249,7 +249,7 @@ const enchants = {
     },  
     curseOfOcean: {  
         id: 32,  
-        lvl: 1,  
+        lvl: 901,  
         name: "§cCurse of Ocean",  
         type: "Curse",  
         maxLvl: 5,  
@@ -260,7 +260,7 @@ const enchants = {
     },  
     heatResistance: {  
         id: 33,  
-        lvl: 1,  
+        lvl: 333,  
         name: "§eHeat Resistance",  
         type: "Buff",  
         maxLvl: 5,  
@@ -271,7 +271,7 @@ const enchants = {
     },  
     coldResistance: {  
         id: 34,  
-        lvl: 1,  
+        lvl: 333,  
         name: "§bCold Resistance",  
         type: "Buff",  
         maxLvl: 5,  
@@ -282,7 +282,7 @@ const enchants = {
     },  
     frost: {  
         id: 35,  
-        lvl: 1,  
+        lvl: 334,  
         name: "§3Frost",  
         type: "Buff",  
         maxLvl: 7,  
@@ -293,7 +293,7 @@ const enchants = {
     },  
     thermalEquilibrium: {  
         id: 36,  
-        lvl: 1,  
+        lvl: 333,  
         name: "§aThermal Equilibrium",  
         type: "Buff",  
         maxLvl: 5,  
@@ -304,7 +304,7 @@ const enchants = {
     },  
     markExplosion: {  
         id: 37,  
-        lvl: 1,  
+        lvl: 799,  
         name: "§6Mark & Burst",  
         type: "Buff",  
         maxLvl: 1,  
@@ -449,7 +449,8 @@ function getWeaponTags(itemId) {
         "boots":       ["armor", "boots"],
         "axe":         ["tool", "axe"],
         "elytra":      ["elytra"],
-        "wuco:book":   ["all", "armor", "axe", "battleaxe", "blunt", "book", "boots", "bow", "broadsword", "chestplate", "cleaver", "claymore", "crossbow", "cutlass", "dagger", "elytra", "gladius", "greatsword", "hammer", "heavy", "helmet", "kama", "katana", "khopesh", "leggings", "lance", "light", "longsword", "mace", "machete", "medium", "morningstar", "nunchaku", "normal", "polearm", "rapier", "ranged", "scimitar", "sai", "short", "staff", "sword", "tool", "trident", "weapon"]
+        "gun":         ["ranged", "gun"],
+        "wuco:book":   ["all", "armor", "axe", "battleaxe", "gun", "blunt", "book", "boots", "bow", "broadsword", "chestplate", "cleaver", "claymore", "crossbow", "cutlass", "dagger", "elytra", "gladius", "greatsword", "hammer", "heavy", "helmet", "kama", "katana", "khopesh", "leggings", "lance", "light", "longsword", "mace", "machete", "medium", "morningstar", "nunchaku", "normal", "polearm", "rapier", "ranged", "scimitar", "sai", "short", "staff", "sword", "tool", "trident", "weapon"]
             
     };
 
@@ -467,7 +468,7 @@ function getWeaponTags(itemId) {
 }
 
 //Combine enchantments
-function combineEnchants(itemEnchants, bookEnchants) {
+function combineEnchants(itemEnchants, bookEnchants, player) {
     // Combine the enchantments
     const combinedEnchants = { ...itemEnchants };
     
@@ -476,11 +477,11 @@ function combineEnchants(itemEnchants, bookEnchants) {
         if (combinedEnchants.hasOwnProperty(enchant)) {
             // Find the matching enchantment data from the enchants object
             const enchantData = Object.values(enchants).find(e => e.name === enchant);
-            const maxLevel = enchantData ? enchantData.maxLvl : Infinity;
+            const maxLevel = enchantData ? enchantData.maxLvl : Infinity
 
             if (combinedEnchants[enchant] === bookEnchants[enchant]) {
                 // If levels are the same, increment by 1 but don't exceed max level
-                combinedEnchants[enchant] = Math.min(combinedEnchants[enchant] + 1, maxLevel);
+                combinedEnchants[enchant] = Math.min(combinedEnchants[enchant] + 1, (maxLevel + getScoreboardValue("enchantBreak", player)));
             } else {
                 // If levels are different, take the highest level
                 combinedEnchants[enchant] = Math.max(combinedEnchants[enchant], bookEnchants[enchant]);
@@ -499,6 +500,35 @@ function combineEnchants(itemEnchants, bookEnchants) {
     return combinedEnchants;
 }
 
+// Add function to validate enchantment conflicts
+function validateEnchantmentConflicts(combinedEnchants) {
+    // Create a map to track enchantment groups
+    const groupCounts = {};
+    
+    // Check each enchantment
+    for (const enchantName in combinedEnchants) {
+        // Find the enchantment data
+        const enchantData = Object.values(enchants).find(e => e.name === enchantName);
+        if (enchantData && enchantData.group) {
+            // Initialize group counter if it doesn't exist
+            if (!groupCounts[enchantData.group]) {
+                groupCounts[enchantData.group] = [];
+            }
+            // Add enchantment to its group
+            groupCounts[enchantData.group].push(enchantName);
+            
+            // Check if group has more than one enchantment
+            if (groupCounts[enchantData.group].length > 1) {
+                return false;
+             //   throw new Error(`Incompatible enchantments: ${groupCounts[enchantData.group].join(", ")} cannot be combined because they belong to the same group: ${enchantData.group}`);
+            }
+        }
+    }
+    return true;
+}
+
+
+//enchant with book
 function handleEnchantWithBook(player, itemId, itemStack) {
     console.log(`[DEBUG] Starting enchanting process`);
 
@@ -528,7 +558,12 @@ function handleEnchantWithBook(player, itemId, itemStack) {
         let { enchants: bookEnchants } = parseEnchantments(bookLore);
 
         // Combine enchantments using the new function
-        const combinedEnchants = combineEnchants(itemEnchants, bookEnchants);
+        const combinedEnchants = combineEnchants(itemEnchants, bookEnchants, player);
+        
+        if (!validateEnchantmentConflicts(combinedEnchants)) {
+            player.sendMessage("§c[MINECRAFT] Unsupported combination of enchantments!");
+            return;
+        }
 
         // Build new lore
         let newLore = [...itemOtherLore];
@@ -610,8 +645,8 @@ function handleEnchant(player, itemId, itemStack) {
             
             // Create slider label with name and cost
             const costText = enchantData.cost > 0 ? 
-                `§a+${enchantData.cost}` : 
-                `§c${enchantData.cost}`;
+                `§c-${enchantData.cost}` : 
+                `§a${enchantData.cost}`;
             const label = `${enchantData.name} (${costText})`;
             
             // Add slider
@@ -633,7 +668,6 @@ function handleEnchant(player, itemId, itemStack) {
             // Calculate total cost and build new enchantments
             let totalCost = 0;
             let newEnchants = {};
-            let curseCount = 0;
 
             response.formValues.forEach((level, index) => {
                 if (level > 0) { // Only process enchants that were selected
@@ -645,8 +679,6 @@ function handleEnchant(player, itemId, itemStack) {
                     totalCost += enchantCost;
 
                     // Count curses for potential discounts
-                    if (enchant.type === "Curse") {
-                        curseCount++;
                     }
                 }
             });
@@ -669,10 +701,13 @@ function handleEnchant(player, itemId, itemStack) {
             for (const [enchantName, level] of Object.entries(newEnchants)) {
                 newLore.push(`${enchantName} ${intToRoman(level)}`);
             }
-
+            
             // Set the new lore
-            if (newItem.setLore) {
+            if (newItem.setLore && validateEnchantmentConflicts(newLore)) {
                 newItem.setLore(newLore);
+            } else {
+                player.sendMessage("§c[MINECRAFT] Unsupported combination of enchantments!");
+                return;
             }
 
             // Update the item in player's hand
@@ -697,8 +732,7 @@ function handleEnchant(player, itemId, itemStack) {
         }
     });
 }
-
-    /**
+/**
  * Function to calculate the enchantment cost discount based on player's upgrades
  * @param {object} player - The player object
  * @param {number} baseCost - The base enchantment cost
