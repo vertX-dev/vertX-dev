@@ -376,7 +376,6 @@ function getScoreboardValue(scoreboard, player) {
     return scoreboardValue;
 }
 
-
 world.afterEvents.chatSend.subscribe((eventData) => {
     const message = eventData.message.trim();
 
@@ -679,7 +678,6 @@ function handleEnchant(player, itemId, itemStack) {
                     totalCost += enchantCost;
 
                     // Count curses for potential discounts
-                    }
                 }
             });
 
