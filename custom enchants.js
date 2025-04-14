@@ -339,15 +339,27 @@ const enchants = {
 /*======================
   Utility Functions
  ======================*/
-
 // Roman numeral conversion functions
 function intToRoman(num) {
+  // Input validation
+  if (num <= 0 || num > 3999) {
+    throw new Error("Number must be between 1 and 3999");
+  }
+
   const valueSymbols = [
-    { value: 10, symbol: "X" },
-    { value: 9,  symbol: "IX" },
-    { value: 5,  symbol: "V" },
-    { value: 4,  symbol: "IV" },
-    { value: 1,  symbol: "I" }
+    { value: 1000, symbol: "M" },
+    { value: 900,  symbol: "CM" },
+    { value: 500,  symbol: "D" },
+    { value: 400,  symbol: "CD" },
+    { value: 100,  symbol: "C" },
+    { value: 90,   symbol: "XC" },
+    { value: 50,   symbol: "L" },
+    { value: 40,   symbol: "XL" },
+    { value: 10,   symbol: "X" },
+    { value: 9,    symbol: "IX" },
+    { value: 5,    symbol: "V" },
+    { value: 4,    symbol: "IV" },
+    { value: 1,    symbol: "I" }
   ];
   
   let roman = "";
@@ -364,7 +376,11 @@ function romanToInt(roman) {
   const romanMap = {
     I: 1,
     V: 5,
-    X: 10
+    X: 10,
+    L: 50,
+    C: 100,
+    D: 500,
+    M: 1000
   };
   
   let num = 0;
@@ -373,9 +389,10 @@ function romanToInt(roman) {
   // Process the numeral from right to left
   for (let i = roman.length - 1; i >= 0; i--) {
     const currentValue = romanMap[roman[i]];
-    if (!currentValue) {
+    if (currentValue === undefined) {
       throw new Error("Invalid Roman numeral character encountered: " + roman[i]);
     }
+    
     if (currentValue < prevValue) {
       num -= currentValue;
     } else {
@@ -383,6 +400,7 @@ function romanToInt(roman) {
       prevValue = currentValue;
     }
   }
+  
   return num;
 }
 
@@ -837,7 +855,166 @@ function handleLibrary(player) {
 
 //=========================UPGRADE ENCHANT LEVEL===========================================
 function handleUpgrade(player, itemStack) {
-    
+    if (!itemStack) {
+        player.sendMessage("§cYou must hold an item to upgrade!");
+        return;
+    }
+
+    // Get current enchantments on the item
+    const itemLore = itemStack.getLore ? itemStack.getLore() : [];
+    let { enchants: currentEnchants, otherLore: itemOtherLore } = parseEnchantments(itemLore);
+
+    // Find upgradeable enchants (those with breakLevel: true)
+    const upgradeableEnchants = [];
+    for (const [enchantName, currentLevel] of Object.entries(currentEnchants)) {
+        const enchantData = Object.values(enchants).find(e => e.name === enchantName);
+        if (enchantData && (enchantData.breakLevel || currentLevel < enchantData.maxLvl)) {
+            upgradeableEnchants.push({
+                name: enchantName,
+                currentLevel,
+                maxLevel: enchantData.maxLvl,
+                breakLevel: enchantData.breakLevel || false,
+                baseCost: enchantData.cost
+            });
+        }
+    }
+
+    if (upgradeableEnchants.length === 0) {
+        player.sendMessage("§cNo upgradeable enchantments found on this item!");
+        return;
+    }
+
+    // Check for guaranteed upgrade scoreboard
+    const hasGuaranteedUpgrade = getScoreboardValue("guaranteedUpgrade", player) > 0;
+
+    // Create the form
+    const form = new ModalFormData()
+        .title("Upgrade Enchantment");
+
+    // Add dropdown for enchant selection
+    const enchantNames = upgradeableEnchants.map(e => 
+        `${e.name} ${intToRoman(e.currentLevel)} (${e.breakLevel ? "Unlimited" : `Max: ${e.maxLevel}`})`
+    );
+    form.dropdown("Select Enchantment", enchantNames);
+
+    // Add slider for bulk upgrades (1-15)
+    form.slider("Number of Attempts", 1, 15, 1, 1);
+
+    // Add toggle for guaranteed upgrade if available
+    if (hasGuaranteedUpgrade) {
+        form.toggle("Use Guaranteed Upgrade", false);
+    }
+
+    // Show the form to the player
+    form.show(player).then((response) => {
+        if (response.canceled) return;
+
+        const selectedEnchant = upgradeableEnchants[response.formValues[0]];
+        const attempts = response.formValues[1];
+        const useGuaranteed = hasGuaranteedUpgrade && response.formValues[2];
+        
+        // Calculate base cost and success chance
+        let baseCost = Math.abs(selectedEnchant.baseCost);
+        const currentLevel = selectedEnchant.currentLevel;
+        const levelsAboveMax = Math.max(0, currentLevel - selectedEnchant.maxLevel);
+
+        // If level is above max and enchant doesn't have breakLevel, prevent upgrade
+        if (levelsAboveMax > 0 && !selectedEnchant.breakLevel) {
+            player.sendMessage(`§cThis enchantment cannot be upgraded beyond level ${selectedEnchant.maxLevel}!`);
+            return;
+        }
+
+        // Calculate increased cost for levels above max
+        if (levelsAboveMax > 0) {
+            baseCost *= Math.pow(2, levelsAboveMax);
+        }
+
+        // Calculate total cost for all attempts
+        const totalCost = baseCost * attempts;
+
+        // Check if player has enough XP
+        const playerXP = player.getTotalXp();
+        if (playerXP < totalCost) {
+            player.sendMessage(`§cYou need ${totalCost} XP for ${attempts} attempts! (You have ${playerXP})`);
+            return;
+        }
+
+        // Deduct XP
+        player.runCommand(`xp @s -${totalCost}`);
+
+        let successCount = 0;
+        let newLevel = currentLevel;
+        
+        let refund = 0;
+        // Process each attempt
+        for (let i = 0; i < attempts; i++) {
+            // Calculate success chance (reduces by 20% of original per level)
+            let chance = 75 * Math.pow(0.8, currentLevel + i);
+            chance = Math.max(chance, 1); // Cap at 1% minimum
+
+            // Roll for success or use guaranteed upgrade
+            const success = useGuaranteed || (Math.random() * 100 <= chance);
+
+            if (success) {
+                successCount++;
+                newLevel++;
+                if (useGuaranteed) {
+                    // Deduct guaranteed upgrade
+                    player.runCommand("scoreboard players remove @s guaranteedUpgrade 1");
+                    break; // Exit loop after using guaranteed upgrade
+                }
+                refund = baseCost * (attempts - i);
+                break;
+            }
+        }
+
+        if (successCount > 0) {
+            // Create new item with upgraded enchant
+            const newItem = itemStack.clone();
+            let newLore = [...itemOtherLore];
+            
+            // Update the enchantment level
+            for (const [enchantName, level] of Object.entries(currentEnchants)) {
+                if (enchantName === selectedEnchant.name) {
+                    newLore.push(`${enchantName} ${intToRoman(newLevel)}`);
+                } else {
+                    newLore.push(`${enchantName} ${intToRoman(level)}`);
+                }
+            }
+
+            // Set the new lore and update item
+            if (newItem.setLore) {
+                newItem.setLore(newLore);
+                try {
+                    const equipment = player.getComponent("minecraft:equippable");
+                    if (equipment) {
+                        equipment.setEquipment(EquipmentSlot.Mainhand, newItem);
+                        player.sendMessage(
+                            `§a=== Upgrade Results ===\n` +
+                            `§6Enchantment:§r ${selectedEnchant.name}\n` +
+                            `§6New Level:§r ${intToRoman(newLevel)}\n` +
+                            `§6Successful Attempts:§r ${successCount}/${attempts}\n` +
+                            `§6XP Cost:§r ${totalCost - refund}`
+                        );
+                        player.runCommand(`xp @s ${refund}`);
+                    }
+                } catch (error) {
+                    console.error("Failed to update item:", error);
+                    player.sendMessage("§cFailed to upgrade enchantment!");
+                    // Refund XP on error
+                    player.runCommand(`xp @s ${totalCost}`);
+                }
+            }
+        } else {
+            // All attempts failed
+            player.sendMessage(
+                `§c=== Upgrade Failed ===\n` +
+                `§6Enchantment:§r ${selectedEnchant.name}\n` +
+                `§6Attempts:§r ${attempts}\n` +
+                `§6XP Cost:§r ${totalCost}`
+            );
+        }
+    });
 }
 //====================================================================
 
