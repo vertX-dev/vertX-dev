@@ -1,9 +1,35 @@
+/*======================
+ * Global Imports
+ *======================*/
 import { world, system, EquipmentSlot, EntityComponentTypes } from "@minecraft/server";
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 
 
 
-// Enchants
+
+
+
+
+
+
+/*======================
+ * Enchantment Definitions
+ *======================*/
+/* 
+ * Master enchantment object containing all custom enchants
+ * Structure for each enchant:
+ * - id: Unique identifier
+ * - group: Compatibility group number
+ * - name: Display name with formatting
+ * - type: Enchant category (Buff/Curse/Trade Off)
+ * - maxLvl: Maximum achievable level
+ * - description: Detailed effect description
+ * - cost: Point cost for application
+ * - enchantOn: Valid item types
+ * - rarity: Enchantment rarity tier
+ */
+
+
 const enchants = {  
     aetherExchange: {  
         id: 10,  
@@ -305,7 +331,16 @@ const enchants = {
     }  
 };
 
-// Function to convert an integer (up to 20) to a Roman numeral
+
+
+
+
+
+/*======================
+  Utility Functions
+ ======================*/
+
+// Roman numeral conversion functions
 function intToRoman(num) {
   const valueSymbols = [
     { value: 10, symbol: "X" },
@@ -325,8 +360,6 @@ function intToRoman(num) {
   return roman;
 }
 
-
-// Function to convert a Roman numeral (up to 20) to an integer
 function romanToInt(roman) {
   const romanMap = {
     I: 1,
@@ -353,58 +386,8 @@ function romanToInt(roman) {
   return num;
 }
 
-
-//Random cursed enchant
-function randomCurse(count, level, list) {
-    let curses = [];
-    return curses;
-}
-
-function getScoreboardValue(scoreboard, player) {
-    const scoreboardObj = world.scoreboard.getObjective(scoreboard);
-    const scoreboardValue = scoreboardObj.getScore(player);
-    return scoreboardValue;
-}
-
-world.afterEvents.chatSend.subscribe((eventData) => {
-    const message = eventData.message.trim();
-
-    // Check if the message starts with .enchant command
-    if (message.startsWith(".enchant")) {
-        const player = eventData.sender;
-        const itemStack = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
-        const itemId = itemStack?.typeId;
-        
-        player.sendMessage("§cYou have 2 seconds to close chat for enchanting");
-
-        // Create the main enchanting UI
-        const enchantingMainUI = new ActionFormData()
-            .title("Enchanting Menu")
-            .body("Select an option:")
-            .button("Enchant")
-            .button("Enchant with Book")
-            .button("Upgrades")
-            .button("Library");
-
-        // Show the form to the player and handle the response.
-        system.runTimeout(() => {
-            enchantingMainUI.show(player).then((response) => {
-                if (!response.canceled) {
-                    if (response.selection == 0) handleEnchant(player, itemId, itemStack);
-                    if (response.selection == 1) handleEnchantWithBook(player, itemId, itemStack);
-                    if (response.selection == 2) handleUpgrade(player);
-                    if (response.selection == 3) handleLibrary(player);
-                }
-            });
-        },40);
-        
-    }
-});
-
-
+// Weapon classification system
 function getWeaponTags(itemId) {
-    // A mapping for known weapons and their manually assigned tags.
-    // You can add or adjust the tags here as needed.
     const weaponTagMapping = {
         "sai":         ["weapon", "sai", "light", "short"],
         "nunchaku":    ["weapon", "nunchaku", "light", "short"],
@@ -444,23 +427,64 @@ function getWeaponTags(itemId) {
     };
 
     // Loop through mapping and see if itemId contains one of the keys.
-    // You can adjust this lookup to be an exact match if needed.
     for (const key in weaponTagMapping) {
         if (itemId.includes(key)) {
             // Always include the "all" tag.
             return ["all", ...weaponTagMapping[key]];
         }
     }
-
-    player.sendMessage("§cThis item is not recognized as a known weapon.");
+    player.sendMessage("§c[MINECRAFT] This item is not recognized as a known weapon.");
     return [];
 }
 
-//Combine enchantments
+// Enchantment parsing
+function parseEnchantments(loreArray) {
+    let enchants = {};
+    let otherLore = [];
+    for (let line of loreArray) {
+        // Split the line into words; assume the last word is a potential Roman numeral.
+        let words = line.trim().split(" ");
+        if (words.length >= 2) {
+            let possibleRoman = words[words.length - 1];
+            let level = romanToInt(possibleRoman);
+            // If the numeral converts to a valid level (> 0), treat this line as an enchantment.
+            if (level && level > 0) {
+                // The enchantment name is the remainder of the line.
+                let name = words.slice(0, words.length - 1).join(" ");
+                enchants[name] = level;
+                continue;
+            }
+        }
+        // If the line does not match the expected pattern, treat it as general lore.
+        otherLore.push(line);
+    }
+    return { enchants, otherLore };
+}
+
+//Get value of scoreboard
+function getScoreboardValue(scoreboard, player) {
+    const scoreboardObj = world.scoreboard.getObjective(scoreboard);
+    const scoreboardValue = scoreboardObj.getScore(player);
+    return scoreboardValue;
+}
+
+
+
+
+
+
+
+/*======================
+  Core Enchanting Logic
+ ======================*/
+
+/*-------------------------------------------
+  Primary enchantment system functionality
+-------------------------------------------*/
+
+// Combine the enchantments
 function combineEnchants(itemEnchants, bookEnchants, player) {
-    // Combine the enchantments
     const combinedEnchants = { ...itemEnchants };
-    
     // Merge enchantments from book
     for (let enchant in bookEnchants) {
         if (combinedEnchants.hasOwnProperty(enchant)) {
@@ -470,26 +494,21 @@ function combineEnchants(itemEnchants, bookEnchants, player) {
 
             if (combinedEnchants[enchant] === bookEnchants[enchant]) {
                 // If levels are the same, increment by 1 but don't exceed max level
-                combinedEnchants[enchant] = Math.min(combinedEnchants[enchant] + 1, (maxLevel + getScoreboardValue("enchantBreak", player)));
+                combinedEnchants[enchant] = Math.min(combinedEnchants[enchant] + 1, maxLevel);
             } else {
                 // If levels are different, take the highest level
                 combinedEnchants[enchant] = Math.max(combinedEnchants[enchant], bookEnchants[enchant]);
             }
+            
         } else {
             combinedEnchants[enchant] = bookEnchants[enchant];
         }
     }
-
-    // Check for Abyssal Breaker
-    if (bookEnchants.hasOwnProperty(enchants.abyssalBreaker.name)) {
-        let curse = randomCurse();
-        combinedEnchants[curse.name] = curse.level;
-    }
-
     return combinedEnchants;
 }
 
-// Add function to validate enchantment conflicts
+
+//Function to validate enchantment conflicts
 function validateEnchantmentConflicts(combinedEnchants) {
     // Create a map to track enchantment groups
     const groupCounts = {};
@@ -508,18 +527,147 @@ function validateEnchantmentConflicts(combinedEnchants) {
             
             // Check if group has more than one enchantment
             if (groupCounts[enchantData.group].length > 1) {
-                return false;
+                return false;//conflict between enchantments
              //   throw new Error(`Incompatible enchantments: ${groupCounts[enchantData.group].join(", ")} cannot be combined because they belong to the same group: ${enchantData.group}`);
             }
         }
     }
-    return true;
+    return true;//all enchsnts are valid
 }
 
 
-function handleEnchantWithBook(player, itemId, itemStack) {
-    console.log(`[DEBUG] Starting enchanting process`);
 
+
+
+
+/*======================
+  Command Handlers
+ ======================*/
+
+
+//=========================NORMAL ENCHANTING===========================================
+function handleEnchant(player, itemId, itemStack) {
+    if (!itemId || !itemStack) {
+        player.sendMessage("§cYou must hold an item to enchant!");
+        return;
+    }
+
+    // Get item tags to determine valid enchantments
+    const itemTags = getWeaponTags(itemId);
+    if (itemTags.length === 0) return; // getWeaponTags already sends an error message
+
+    // Get current enchantments on the item
+    const itemLore = itemStack.getLore ? itemStack.getLore() : [];
+    let { enchants: currentEnchants, otherLore: itemOtherLore } = parseEnchantments(itemLore);
+    const points = player.getTotalXp();
+//------------------UI-----------------------------------------------------------
+    
+    // Create the form
+    const form = new ModalFormData()
+        .title(`Enchant Item      xp: ${points}`);
+
+    // Keep track of available enchants for processing response
+    const availableEnchants = [];
+
+    // Add sliders for each valid enchant
+    for (const [enchantId, enchantData] of Object.entries(enchants)) {
+        // Check if the enchant can be applied to this item type
+        const canApply = enchantData.enchantOn.some(tag => itemTags.includes(tag));
+        if (canApply) {
+            availableEnchants.push(enchantData);
+            const currentLevel = currentEnchants[enchantData.name] || 0;
+            
+            // Create slider label with name and cost
+            const costText = enchantData.cost > 0 ? 
+                `§c${enchantData.cost}` : 
+                `§a${enchantData.cost}`;
+            const label = `${enchantData.name} (${costText})`;
+            
+            // Add slider
+            form.slider(
+                label,
+                0,                      // min level (0 = not applied)
+                enchantData.maxLvl,     // max level from enchant data
+                1,                      // step size
+                currentLevel           // current level (if exists)
+            );
+        }
+    }
+    form.submitButton("§dENCHANT");
+
+    // Show the form to the player
+    form.show(player).then((response) => {
+//-----------------UI RESPONSE----------------------------------------------------
+        
+        if (response.canceled) return;
+
+        try {
+            // Calculate total cost and build new enchantments
+            let totalCost = 0;
+            let newEnchants = {};
+
+            response.formValues.forEach((level, index) => {
+                if (level > 0) { // Only process enchants that were selected
+                    const enchant = availableEnchants[index];
+                    newEnchants[enchant.name] = level;
+                    
+                    // Calculate cost based on level selected
+                    const enchantCost = enchant.cost * level;
+                    totalCost += enchantCost;
+                }
+            });
+
+            // Check if player can afford the enchantment
+            if (points < totalCost) {
+                player.sendMessage(`§cYou need ${totalCost} xp to apply these enchantments!`);
+                return;
+            }
+
+            // Create new item with enchantments
+            const newItem = itemStack.clone();
+            let newLore = [...itemOtherLore];
+            
+            // Add each enchantment to lore
+            for (const [enchantName, level] of Object.entries(newEnchants)) {
+                newLore.push(`${enchantName} ${intToRoman(level)}`);
+            }
+            
+            // Set the new lore
+            if (newItem.setLore && validateEnchantmentConflicts(newEnchants)) {
+                newItem.setLore(newLore);
+            } else {
+                player.sendMessage("§c[MINECRAFT] Unsupported combination of enchantments!");
+                return;
+            }
+
+            // Update the item in player's hand
+            try {
+                const equipment = player.getComponent("minecraft:equippable");
+                if (equipment) {
+                    equipment.setEquipment(EquipmentSlot.Mainhand, newItem);
+                    
+                    // Deduct points
+                    player.runCommand(`xp @s -${totalCost}`);
+                    
+                    player.sendMessage(`§aSuccessfully applied enchantments for ${totalCost} xp!`);
+                }
+            } catch (error) {
+                console.error("Failed to update item:", error);
+                player.sendMessage("§cFailed to apply enchantments!");
+            }
+
+        } catch (error) {
+            console.error("Error in enchant handling:", error);
+            player.sendMessage("§cAn error occurred while enchanting!");
+        }
+    });
+}
+//========================================================================================
+
+
+
+//===========TRANSFER ENCHANTMENTS FROM BOOK TO ITEM==============================================
+function handleEnchantWithBook(player, itemId, itemStack) {
     try {
         // Get the equipment component
         const equipment = player.getComponent("minecraft:equippable");
@@ -542,8 +690,6 @@ function handleEnchantWithBook(player, itemId, itemStack) {
         // Get the item's current lore
         const itemLore = itemStack.getLore ? itemStack.getLore() : [];
         const bookLore = bookStack.getLore ? bookStack.getLore() : [];
-
-        console.log('[DEBUG] Current lore:', { itemLore, bookLore });
 
         // Parse enchantments
         let { enchants: itemEnchants, otherLore: itemOtherLore } = parseEnchantments(itemLore);
@@ -620,163 +766,13 @@ function handleEnchantWithBook(player, itemId, itemStack) {
         player.sendMessage("§cAn error occurred while enchanting!");
     }
 }
+//====================================================================
 
 
 
-//Enchant
-function handleEnchant(player, itemId, itemStack) {
-    if (!itemId || !itemStack) {
-        player.sendMessage("§cYou must hold an item to enchant!");
-        return;
-    }
+//==========================LIBRARY===================================
 
-    // Get item tags to determine valid enchantments
-    const itemTags = getWeaponTags(itemId);
-    if (itemTags.length === 0) return; // getWeaponTags already sends an error message
-
-    // Get current enchantments on the item
-    const itemLore = itemStack.getLore ? itemStack.getLore() : [];
-    let { enchants: currentEnchants } = parseEnchantments(itemLore);
-
-    // Create the form
-    const form = new ModalFormData()
-        .title("Enchant Item");
-
-    // Keep track of available enchants for processing response
-    const availableEnchants = [];
-
-    // Add sliders for each valid enchant
-    for (const [enchantId, enchantData] of Object.entries(enchants)) {
-        // Check if the enchant can be applied to this item type
-        const canApply = enchantData.enchantOn.some(tag => itemTags.includes(tag));
-        if (canApply) {
-            availableEnchants.push(enchantData);
-            const currentLevel = currentEnchants[enchantData.name] || 0;
-            
-            // Create slider label with name and cost
-            const costText = enchantData.cost > 0 ? 
-                `§c${enchantData.cost}` : 
-                `§a${enchantData.cost}`;
-            const label = `${enchantData.name} (${costText})`;
-            
-            // Add slider
-            form.slider(
-                label,
-                0,                      // min level (0 = not applied)
-                enchantData.maxLvl,     // max level from enchant data
-                1,                      // step size
-                currentLevel           // current level (if exists)
-            );
-        }
-    }
-
-    // Show the form to the player
-    form.show(player).then((response) => {
-        if (response.canceled) return;
-
-        try {
-            // Calculate total cost and build new enchantments
-            let totalCost = 0;
-            let newEnchants = {};
-
-            response.formValues.forEach((level, index) => {
-                if (level > 0) { // Only process enchants that were selected
-                    const enchant = availableEnchants[index];
-                    newEnchants[enchant.name] = level;
-                    
-                    // Calculate cost based on level selected
-                    const enchantCost = enchant.cost * level;
-                    totalCost += enchantCost;
-
-                    // Count curses for potential discounts
-                }
-            });
-
-            // Apply cost discounts
-            const finalCost = calculateEnchantmentCost(player, totalCost);
-
-            // Check if player can afford the enchantment
-            const points = world.scoreboard.getObjective("points")?.getScore(player) || 0;
-            if (points < finalCost) {
-                player.sendMessage(`§cYou need ${finalCost} points to apply these enchantments!`);
-                return;
-            }
-
-            // Create new item with enchantments
-            const newItem = itemStack.clone();
-            let newLore = [];
-            
-            // Add each enchantment to lore
-            for (const [enchantName, level] of Object.entries(newEnchants)) {
-                newLore.push(`${enchantName} ${intToRoman(level)}`);
-            }
-            
-            // Set the new lore
-            if (newItem.setLore && validateEnchantmentConflicts(newEnchants)) {
-                newItem.setLore(newLore);
-            } else {
-                player.sendMessage("§c[MINECRAFT] Unsupported combination of enchantments!");
-                return;
-            }
-
-            // Update the item in player's hand
-            try {
-                const equipment = player.getComponent("minecraft:equippable");
-                if (equipment) {
-                    equipment.setEquipment(EquipmentSlot.Mainhand, newItem);
-                    
-                    // Deduct points
-                    player.runCommand(`scoreboard players remove @s points ${finalCost}`);
-                    
-                    player.sendMessage(`§aSuccessfully applied enchantments for ${finalCost} points!`);
-                }
-            } catch (error) {
-                console.error("Failed to update item:", error);
-                player.sendMessage("§cFailed to apply enchantments!");
-            }
-
-        } catch (error) {
-            console.error("Error in enchant handling:", error);
-            player.sendMessage("§cAn error occurred while enchanting!");
-        }
-    });
-}
-/**
- * Function to calculate the enchantment cost discount based on player's upgrades
- * @param {object} player - The player object
- * @param {number} baseCost - The base enchantment cost
- * @param {number} curseCount - Number of curses on the item
- * @returns {number} - The final cost after discounts
- */
-function calculateEnchantmentCost(player, baseCost) {
-    // Helper function to get scoreboard values
-
-    // Get player's upgrade levels
-    const enchantCostLevel = getScoreboardValue("enchant_cost_level", player) || 0;
-    const cursesBonusLevel = getScoreboardValue("curses_bonus_level", player) || 0;
-    
-    // Calculate discounts
-    // Base discount: 3% per enchant_cost_level
-    const baseDiscount = enchantCostLevel * 0.03; // 3% per level
-    
-    // Curse bonus: 4% per curse per curses_bonus_level// 4% per level per curse
-    
-    // Calculate final cost with discounts
-    // 1. Apply base discount first
-    // 2. Then apply curse discount
-    // 3. Ensure cost never goes below 1
-    const finalCost = Math.max(1, Math.floor(baseCost * (1 - baseDiscount)));
-    
-    // Log calculation details for debugging
-    console.log(`[DEBUG] Cost Calculation:
-        Base Cost: ${baseCost}
-        Enchant Cost Level: ${enchantCostLevel} (${(baseDiscount * 100).toFixed(1)}% discount)
-        Final Cost: ${finalCost}`);
-    
-    return finalCost;
-}
-
-// Function to handle the "Library" option.
+//need rework
 function handleLibrary(player) {
     // Get the tag and parse unlocked enchants
     const tag = player.getTags().find(tag => tag.startsWith("unlockedEnchants:"));
@@ -835,120 +831,60 @@ function handleLibrary(player) {
         });
     });
 }
+//====================================================================
 
 
-function handleUpgrade(player) {
-    // Add the getScoreboardValue function for reference
+
+//=========================UPGRADE ENCHANT LEVEL===========================================
+function handleUpgrade(player, itemStack) {
     
-    // Get player's current upgrade levels from scoreboards
-    const enchantCostLevel = getScoreboardValue("enchant_cost_level", player) || 0;
-    const cursesBonusLevel = getScoreboardValue("curses_bonus_level", player) || 0;
-    const maxEnchantLevel = getScoreboardValue("max_enchant_level", player) || 0;
-    const maxEnchantsLevel = getScoreboardValue("max_enchants_level", player) || 0;
-    
-    // Get player's currency/points for upgrades
-    const enchantPoints = getScoreboardValue("enchant_points", player) || 0;
-    
-    // Create upgrade menu
-    const form = new ActionFormData()
-        .title("Enchantment Upgrades")
-        .body(`You have ${enchantPoints} upgrade points available.`)
-        .button(`Enchant Cost: -${enchantCostLevel * 3}% (Level ${enchantCostLevel}/25)`)
-        .button(`Curses Bonus: +${cursesBonusLevel * 4}% (Level ${cursesBonusLevel}/25)`)
-        .button(`Max Enchant Level: ${maxEnchantLevel + 1}/25`)
-        .button(`Max Enchants Per Item: ${maxEnchantsLevel + 1}/10`)
-        .button("Exit");
-    
-    form.show(player).then(response => {
-        if (response.canceled) return;
-        
-        // Calculate cost - you can adjust this formula
-        const upgradePointCost = 5 + (response.selection * 2);
-        
-        switch (response.selection) {
-            case 0: // Enchant Cost
-                if (enchantCostLevel < 25 && enchantPoints >= upgradePointCost) {
-                    player.runCommand(`scoreboard players remove @s enchant_points ${upgradePointCost}`);
-                    player.runCommand("scoreboard players add @s enchant_cost_level 1");
-                    player.sendMessage("§aEnchant Cost discount upgraded!");
-                } else if (enchantCostLevel >= 25) {
-                    player.sendMessage("§cYou've reached the maximum level for Enchant Cost reduction!");
-                } else {
-                    player.sendMessage(`§cNot enough points! You need ${upgradePointCost} points.`);
-                }
-                break;
-                
-            case 1: // Curses Bonus
-                if (cursesBonusLevel < 25 && enchantPoints >= upgradePointCost) {
-                    player.runCommand(`scoreboard players remove @s enchant_points ${upgradePointCost}`);
-                    player.runCommand("scoreboard players add @s curses_bonus_level 1");
-                    player.sendMessage("§aCurses Bonus upgraded!");
-                } else if (cursesBonusLevel >= 25) {
-                    player.sendMessage("§cYou've reached the maximum level for Curses Bonus!");
-                } else {
-                    player.sendMessage(`§cNot enough points! You need ${upgradePointCost} points.`);
-                }
-                break;
-                
-            case 2: // Max Enchant Level
-                if (maxEnchantLevel < 25 && enchantPoints >= upgradePointCost) {
-                    player.runCommand(`scoreboard players remove @s enchant_points ${upgradePointCost}`);
-                    player.runCommand("scoreboard players add @s max_enchant_level 1");
-                    player.sendMessage("§aMax Enchant Level upgraded!");
-                } else if (maxEnchantLevel >= 25) {
-                    player.sendMessage("§cYou've reached the maximum Enchant Level!");
-                } else {
-                    player.sendMessage(`§cNot enough points! You need ${upgradePointCost} points.`);
-                }
-                break;
-                
-            case 3: // Max Enchants Per Item
-                if (maxEnchantsLevel < 10 && enchantPoints >= upgradePointCost) {
-                    player.runCommand(`scoreboard players remove @s enchant_points ${upgradePointCost}`);
-                    player.runCommand("scoreboard players add @s max_enchants_level 1");
-                    player.sendMessage("§aMax Enchants Per Item upgraded!");
-                } else if (maxEnchantsLevel >= 10) {
-                    player.sendMessage("§cYou've reached the maximum number of enchants per item!");
-                } else {
-                    player.sendMessage(`§cNot enough points! You need ${upgradePointCost} points.`);
-                }
-                break;
-                
-            case 4: // Exit
-                return;
-        }
-        
-        // Show the menu again after selection
-        handleUpgrade(player);
-    });
 }
+//====================================================================
 
 
 
-// Helper function to parse enchantments from a lore array.
-// Returns an object with two properties:
-// - enchants: an object mapping enchantment names to numeric levels.
-// - otherLore: an array containing non-enchantment lore.
-function parseEnchantments(loreArray) {
-    let enchants = {};
-    let otherLore = [];
-    for (let line of loreArray) {
-        // Split the line into words; assume the last word is a potential Roman numeral.
-        let words = line.trim().split(" ");
-        if (words.length >= 2) {
-            let possibleRoman = words[words.length - 1];
-            let level = romanToInt(possibleRoman);
-            // If the numeral converts to a valid level (> 0), treat this line as an enchantment.
-            if (level && level > 0) {
-                // The enchantment name is the remainder of the line.
-                let name = words.slice(0, words.length - 1).join(" ");
-                enchants[name] = level;
-                continue;
-            }
-        }
-        // If the line does not match the expected pattern, treat it as general lore.
-        otherLore.push(line);
+/*======================
+  Event Listeners
+ ======================*/
+
+//chat command
+world.beforeEvents.chatSend.subscribe((eventData) => {
+    const message = eventData.message.trim();
+
+    // Check if the message starts with .enchant command
+    if (message.startsWith(".enchant")) {
+        const player = eventData.sender;
+        const itemStack = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
+        const itemId = itemStack?.typeId;
+        eventData.cancel;
+        player.sendMessage("§cYou have 2 seconds to close chat for enchanting");
+
+        // Create the main enchanting UI
+        const enchantingMainUI = new ActionFormData()
+            .title("Enchanting Menu")
+            .body("Select an option:")
+            .button("Enchant")
+            .button("Enchant with Book")
+            .button("Upgrade")
+            .button("Library");
+
+        // Show the form to the player and handle the response.
+        system.runTimeout(() => {
+            enchantingMainUI.show(player).then((response) => {
+                if (!response.canceled) {
+                    if (response.selection == 0) handleEnchant(player, itemId, itemStack);
+                    if (response.selection == 1) handleEnchantWithBook(player, itemId, itemStack);
+                    if (response.selection == 2) handleUpgrade(player, itemStack);
+                    if (response.selection == 3) handleLibrary(player);
+                }
+            });
+        },40);
+        
     }
-    return { enchants, otherLore };
-}
+});
+
+
+/*======================
+  Utility Helpers
+ ======================*/
 
