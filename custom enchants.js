@@ -10,8 +10,6 @@ import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 
 
 
-
-
 /*======================
  * Enchantment Definitions
  *======================*/
@@ -183,7 +181,8 @@ const enchants = {
         description: "Enhances your bow or crossbow for attacks against Endermen. At Level 1, Endermen take only 60% of your normal damage (-40% penalty), while at Level 3 they take 120% (+20% bonus). Level 2 offers an intermediate effect (-10%)",  
         cost: 2500,  
         enchantOn: ["ranged", "trident"],  
-        rarity: "epic"  
+        rarity: "epic",
+        breakLevel: true         
     },  
     manaBarrier: {  
         id: 24,  
@@ -486,10 +485,23 @@ function getScoreboardValue(scoreboard, player) {
     return scoreboardValue;
 }
 
+//reduce xp lvl
+function rdxplvl(num) {
+  let level;
 
+  if (num <= 352) {
+    // Levels 0–16
+    level = Math.sqrt(num + 9) - 3;
+  } else if (num <= 1507) {
+    // Levels 17–31
+    level = (81 / 10) + Math.sqrt((2 / 5) * (num - (7839 / 40)));
+  } else {
+    // Levels 32+
+    level = (325 / 18) + Math.sqrt((2 / 9) * (num - (54215 / 72)));
+  }
 
-
-
+  return Math.floor(level); // Minecraft levels are whole numbers
+}
 
 
 /*======================
@@ -582,7 +594,7 @@ function handleEnchant(player, itemId, itemStack) {
     
     // Create the form
     const form = new ModalFormData()
-        .title(`Enchant Item      xp: ${points}`);
+        .title(`Enchant Item      XP: §a${points}`);
 
     // Keep track of available enchants for processing response
     const availableEnchants = [];
@@ -665,7 +677,8 @@ function handleEnchant(player, itemId, itemStack) {
                     equipment.setEquipment(EquipmentSlot.Mainhand, newItem);
                     
                     // Deduct points
-                    player.runCommand(`xp @s -${totalCost}`);
+                    player.runCommand(`xp -99999L @s`);
+                    player.runCommand(`xp ${rdxplvl(points - totalCost)}L @s`);
                     
                     player.sendMessage(`§aSuccessfully applied enchantments for ${totalCost} xp!`);
                 }
@@ -897,8 +910,8 @@ function handleUpgrade(player, itemStack) {
     );
     form.dropdown("Select Enchantment", enchantNames);
 
-    // Add slider for bulk upgrades (1-15)
-    form.slider("Number of Attempts", 1, 15, 1, 1);
+    // Add slider for bulk upgrades (1-25)
+    form.slider("Number of Attempts", 1, 25, 1, 1);
 
     // Add toggle for guaranteed upgrade if available
     if (hasGuaranteedUpgrade) {
@@ -926,7 +939,7 @@ function handleUpgrade(player, itemStack) {
 
         // Calculate increased cost for levels above max
         if (levelsAboveMax > 0) {
-            baseCost *= Math.pow(2, levelsAboveMax);
+            baseCost *= Math.floor(Math.min((1.4 * levelsAboveMax), 40));
         }
 
         // Calculate total cost for all attempts
@@ -940,17 +953,19 @@ function handleUpgrade(player, itemStack) {
         }
 
         // Deduct XP
-        player.runCommand(`xp @s -${totalCost}`);
+        player.runCommand(`xp -99999L @s`);
 
         let successCount = 0;
         let newLevel = currentLevel;
         
-        let refund = 0;
+        let refund = rdxplvl(playerXP - totalCost);
+        let attemptsForUpgrade = 0;
         // Process each attempt
         for (let i = 0; i < attempts; i++) {
             // Calculate success chance (reduces by 20% of original per level)
             let chance = 75 * Math.pow(0.8, currentLevel + i);
             chance = Math.max(chance, 1); // Cap at 1% minimum
+            attemptsForUpgrade++;
 
             // Roll for success or use guaranteed upgrade
             const success = useGuaranteed || (Math.random() * 100 <= chance);
@@ -961,9 +976,10 @@ function handleUpgrade(player, itemStack) {
                 if (useGuaranteed) {
                     // Deduct guaranteed upgrade
                     player.runCommand("scoreboard players remove @s guaranteedUpgrade 1");
+                    refund = rdxplvl((playerXP - totalCost) + (baseCost * (attempts - attemptsForUpgrade)));
                     break; // Exit loop after using guaranteed upgrade
                 }
-                refund = baseCost * (attempts - i);
+                refund = rdxplvl((playerXP - totalCost) + (baseCost * (attempts - attemptsForUpgrade)));
                 break;
             }
         }
@@ -993,16 +1009,14 @@ function handleUpgrade(player, itemStack) {
                             `§a=== Upgrade Results ===\n` +
                             `§6Enchantment:§r ${selectedEnchant.name}\n` +
                             `§6New Level:§r ${intToRoman(newLevel)}\n` +
-                            `§6Successful Attempts:§r ${successCount}/${attempts}\n` +
+                            `§6Attempts:§r ${attemptsForUpgrade}\n` +
                             `§6XP Cost:§r ${totalCost - refund}`
                         );
-                        player.runCommand(`xp @s ${refund}`);
+                        player.runCommand(`xp ${refund}L @s`);
                     }
                 } catch (error) {
                     console.error("Failed to update item:", error);
                     player.sendMessage("§cFailed to upgrade enchantment!");
-                    // Refund XP on error
-                    player.runCommand(`xp @s ${totalCost}`);
                 }
             }
         } else {
@@ -1013,6 +1027,7 @@ function handleUpgrade(player, itemStack) {
                 `§6Attempts:§r ${attempts}\n` +
                 `§6XP Cost:§r ${totalCost}`
             );
+            player.runCommand(`xp ${refund}L @s`);
         }
     });
 }
@@ -1034,16 +1049,15 @@ world.beforeEvents.chatSend.subscribe((eventData) => {
         const itemStack = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
         const itemId = itemStack?.typeId;
         eventData.cancel;
-        player.sendMessage("§cYou have 2 seconds to close chat for enchanting");
 
-        // Create the main enchanting UI
+        // Create the main enchanting UI with button icons
         const enchantingMainUI = new ActionFormData()
             .title("Enchanting Menu")
             .body("Select an option:")
-            .button("Enchant")
-            .button("Enchant with Book")
-            .button("Upgrade")
-            .button("Library");
+            .button("Enchant", "textures/items/book_enchanted.png")
+            .button("Enchant with Book", "textures/items/book_enchanted.png")
+            .button("Upgrade", "textures/items/diamond.png")
+            .button("Library", "textures/blocks/bookshelf.png");
 
         // Show the form to the player and handle the response.
         system.runTimeout(() => {
@@ -1055,13 +1069,10 @@ world.beforeEvents.chatSend.subscribe((eventData) => {
                     if (response.selection == 3) handleLibrary(player);
                 }
             });
-        },40);
-        
+        }, 40);
     }
 });
-
-
 /*======================
-  Utility Helpers
+  Effects from enchantments
  ======================*/
 
