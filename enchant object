@@ -1,10 +1,7 @@
-
-
-// Enchants
 const enchants = {  
     aetherExchange: {  
         id: 10,  
-        lvl: 1,  
+        group: "1000",  
         name: "§cAether's Exchange",  
         type: "Curse",  
         maxLvl: 2,  
@@ -15,7 +12,7 @@ const enchants = {
     },  
     abyssalBreaker: {  
         id: 11,  
-        lvl: 1,  
+        group: "999",  
         name: "§cAbyssal Breaker",  
         type: "Curse",  
         maxLvl: 5,  
@@ -26,7 +23,7 @@ const enchants = {
     },  
     wisdomWrath: {  
         id: 12,  
-        lvl: 1,  
+        group: "998",  
         name: "§6Wisdom's Wrath",  
         type: "Buff",  
         maxLvl: 10,  
@@ -37,7 +34,7 @@ const enchants = {
     },  
     permafrost: {  
         id: 13,  
-        lvl: 1,  
+        group: "899",  
         name: "§9Permafrost",  
         type: "Buff",  
         maxLvl: 6,  
@@ -48,7 +45,7 @@ const enchants = {
     },  
     finalJudgement: {  
         id: 14,  
-        lvl: 1,  
+        group: "997",  
         name: "§5Final Judgement",  
         type: "Buff",  
         maxLvl: 6,  
@@ -59,7 +56,7 @@ const enchants = {
     },  
     swarmSlayer: {  
         id: 15,  
-        lvl: 1,  
+        group: "996",  
         name: "§2Swarm Slayer",  
         type: "Buff",  
         maxLvl: 4,  
@@ -70,7 +67,7 @@ const enchants = {
     },  
     sweepingEdge: {  
         id: 16,  
-        lvl: 1,  
+        group: "899",  
         name: "§eSweeping Edge",  
         type: "Buff",  
         maxLvl: 5,  
@@ -81,7 +78,7 @@ const enchants = {
     },  
     quickstrike: {  
         id: 17,  
-        lvl: 1,  
+        group: "995",  
         name: "§eQuickstrike",  
         type: "Buff",  
         maxLvl: 5,  
@@ -92,7 +89,7 @@ const enchants = {
     },  
     lifesteal: {  
         id: 18,  
-        lvl: 1,  
+        group: "994",  
         name: "§dLifesteal",  
         type: "Buff",  
         maxLvl: 4,  
@@ -103,7 +100,7 @@ const enchants = {
     },  
     gravityPull: {  
         id: 19,  
-        lvl: 1,  
+        group: "799",  
         name: "§bGravity Pull",  
         type: "Buff",  
         maxLvl: 3,  
@@ -114,7 +111,7 @@ const enchants = {
     },  
     enderSlayer: {  
         id: 20,  
-        lvl: 1,  
+        group: "500",  
         name: "§5Ender Slayer",  
         type: "Buff",  
         maxLvl: 8,  
@@ -125,7 +122,7 @@ const enchants = {
     },  
     lightWeight: {  
         id: 21,  
-        lvl: 1,  
+        group: "300",  
         name: "§eLight Weight",  
         type: "Trade Off",  
         maxLvl: 5,  
@@ -136,7 +133,7 @@ const enchants = {
     },  
     nightVision: {  
         id: 22,  
-        lvl: 1,  
+        group: "301",  
         name: "§aNight's Sight",  
         type: "Buff",  
         maxLvl: 1,  
@@ -147,7 +144,7 @@ const enchants = {
     },  
     enderHunter: {  
         id: 23,  
-        lvl: 1,  
+        group: "799",  
         name: "§5Ender Hunter",  
         type: "Buff",  
         maxLvl: 3,  
@@ -158,7 +155,7 @@ const enchants = {
     },  
     manaBarrier: {  
         id: 24,  
-        lvl: 1,  
+        group: "302",  
         name: "§bMana Barrier",  
         type: "Trade Off",  
         maxLvl: 3,  
@@ -169,7 +166,7 @@ const enchants = {
     },  
     skyPiercer: {  
         id: 25,  
-        lvl: 1,  
+        group: "399",  
         name: "§3Sky Piercer",  
         type: "Buff",  
         maxLvl: 6,  
@@ -180,7 +177,7 @@ const enchants = {
     },  
     stormChain: {  
         id: 26,  
-        lvl: 1,  
+        group: "799",  
         name: "§5Storm Chain",  
         type: "Buff",  
         maxLvl: 7,  
@@ -191,7 +188,7 @@ const enchants = {
     },  
     curseOfBreaking: {  
         id: 27,  
-        lvl: 1,  
+        group: "666",  
         name: "§cCurse of Breaking",  
         type: "Curse",  
         maxLvl: 3,  
@@ -202,7 +199,7 @@ const enchants = {
     },  
     curseOfSlippery: {  
         id: 28,  
-        lvl: 1,  
+        group: "667",  
         name: "§cCurse of Slippery",  
         type: "Curse",  
         maxLvl: 1,  
@@ -211,20 +208,10 @@ const enchants = {
         enchantOn: ["weapons", "ranged", "tool"],  
         rarity: "rare"  
     },  
-    curseOfIncompatibility: {  
-        id: 29,  
-        lvl: 1,  
-        name: "§cCurse of Incompatibility",  
-        type: "Curse",  
-        maxLvl: 1,  
-        description: "Makes all other enchantments incompatible with the item",  
-        cost: -3000,  
-        enchantOn: ["all"],  
-        rarity: "legendary"  
-    },  
+    // curseOfIncompatibility has been removed  
     enlightenment: {  
         id: 30,  
-        lvl: 1,  
+        group: "307",  
         name: "§eEnlightenment",  
         type: "Buff",  
         maxLvl: 10,  
@@ -235,7 +222,7 @@ const enchants = {
     },  
     curseOfCorrosion: {  
         id: 31,  
-        lvl: 1,  
+        group: "900",  
         name: "§cCurse of Corrosion",  
         type: "Curse",  
         maxLvl: 20,  
@@ -246,7 +233,7 @@ const enchants = {
     },  
     curseOfOcean: {  
         id: 32,  
-        lvl: 1,  
+        group: "901",  
         name: "§cCurse of Ocean",  
         type: "Curse",  
         maxLvl: 5,  
@@ -257,7 +244,7 @@ const enchants = {
     },  
     heatResistance: {  
         id: 33,  
-        lvl: 1,  
+        group: "333",  
         name: "§eHeat Resistance",  
         type: "Buff",  
         maxLvl: 5,  
@@ -268,7 +255,7 @@ const enchants = {
     },  
     coldResistance: {  
         id: 34,  
-        lvl: 1,  
+        group: "333",  
         name: "§bCold Resistance",  
         type: "Buff",  
         maxLvl: 5,  
@@ -279,7 +266,7 @@ const enchants = {
     },  
     frost: {  
         id: 35,  
-        lvl: 1,  
+        group: "334",  
         name: "§3Frost",  
         type: "Buff",  
         maxLvl: 7,  
@@ -290,7 +277,7 @@ const enchants = {
     },  
     thermalEquilibrium: {  
         id: 36,  
-        lvl: 1,  
+        group: "333",  
         name: "§aThermal Equilibrium",  
         type: "Buff",  
         maxLvl: 5,  
@@ -301,7 +288,7 @@ const enchants = {
     },  
     markExplosion: {  
         id: 37,  
-        lvl: 1,  
+        group: "799",  
         name: "§6Mark & Burst",  
         type: "Buff",  
         maxLvl: 1,  
