@@ -9,7 +9,6 @@ import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 
 
 
-
 /*======================
  * Enchantment Definitions
  *======================*/
@@ -1040,16 +1039,19 @@ function handleUpgrade(player, itemStack) {
  ======================*/
 
 //chat command
-world.beforeEvents.chatSend.subscribe((eventData) => {
-    const message = eventData.message.trim();
-
-    // Check if the message starts with .enchant command
-    if (message.startsWith(".enchant")) {
-        const player = eventData.sender;
+world.beforeEvents.playerInteractWithBlock.subscribe((eventData) => {
+    // Check if the interacted block is the enchanter block
+    if (eventData.block.typeId === "wuco:enchanter") {
+        // Get the player who interacted with the block
+        const player = eventData.player;
+        
+        // Get the item in the player's main hand
         const itemStack = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
         const itemId = itemStack?.typeId;
-        eventData.cancel;
 
+        // Optional: Log the interaction for debugging
+        console.warn(`Player ${player.name} interacted with enchanter block`);
+        
         // Create the main enchanting UI with button icons
         const enchantingMainUI = new ActionFormData()
             .title("Enchanting Menu")
@@ -1060,18 +1062,59 @@ world.beforeEvents.chatSend.subscribe((eventData) => {
             .button("Library", "textures/blocks/bookshelf.png");
 
         // Show the form to the player and handle the response.
+        // Small delay to ensure proper UI display after interaction
         system.runTimeout(() => {
             enchantingMainUI.show(player).then((response) => {
                 if (!response.canceled) {
-                    if (response.selection == 0) handleEnchant(player, itemId, itemStack);
-                    if (response.selection == 1) handleEnchantWithBook(player, itemId, itemStack);
-                    if (response.selection == 2) handleUpgrade(player, itemStack);
-                    if (response.selection == 3) handleLibrary(player);
+                    if (response.selection === 0) handleEnchant(player, itemId, itemStack);
+                    if (response.selection === 1) handleEnchantWithBook(player, itemId, itemStack);
+                    if (response.selection === 2) handleUpgrade(player, itemStack);
+                    if (response.selection === 3) handleLibrary(player);
                 }
             });
-        }, 40);
+        }, 10);
     }
 });
+
+
+/*======================
+   Loot Table System
+======================*/
+system.runInterval(() => {
+    // Get all players
+    const players = world.getAllPlayers();
+    
+    for (const player of players) {
+        // Get player's main hand item
+        const equipment = player.getComponent("minecraft:equippable");
+        if (!equipment) continue;
+        
+        const itemStack = equipment.getEquipment(EquipmentSlot.Mainhand);
+        if (!itemStack) continue;
+        
+        // Get item lore
+        const lore = itemStack.getLore();
+        if (!lore || lore.length === 0) continue;
+        
+        // Check each line of lore for the special tag
+        for (const line of lore) {
+            if (line.startsWith('§klt{')) {
+                // Extract the tag between curly braces
+                const match = line.match(/§klt\{([^}]+)\}/);
+                if (match && match[1]) {
+                    const specialTag = match[1];
+                    // Call the processing function with the extracted tag
+                    loreAndEnchants(player, specialTag, itemStack);
+                }
+            }
+        }
+    }
+}, 20); // Run every 20 ticks (1 second)
+
+function loreAndEnchants(player, specialTag, itemStack) {
+    
+}
+
 /*======================
   Effects from enchantments
  ======================*/
