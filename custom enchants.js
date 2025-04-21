@@ -1111,8 +1111,124 @@ system.runInterval(() => {
     }
 }, 20); // Run every 20 ticks (1 second)
 
+
+
+// Structures
+const structures = {
+  village: {
+    id: "village",
+    lootLevel: 3,
+    maxEnchants: 2,
+    aenchants: [27, 28, 15, 16, 17, 21]
+  },
+
+  mineshaft: {
+    id: "mineshaft",
+    lootLevel: 3,
+    maxEnchants: 7,
+    aenchants: [27, 28, 17, 19, 22, 35, 24]
+  },
+
+  ocean_ruin: {
+    id: "ocean_ruin",
+    lootLevel: 4,
+    maxEnchants: 3,
+    aenchants: [31, 13, 33, 34, 21]
+  },
+
+  shipwreck: {
+    id: "shipwreck",
+    lootLevel: 4,
+    maxEnchants: 3,
+    aenchants: [31, 28, 13, 33]
+  },
+
+  pillager_outpost: {
+    id: "pillager_outpost",
+    lootLevel: 4,
+    maxEnchants: 4,
+    aenchants: [27, 15, 26, 36, 24]
+  },
+
+  ruined_portal: {
+    id: "ruined_portal",
+    lootLevel: 10,
+    maxEnchants: 6,
+    aenchants: [30, 19, 20, 23, 21]
+  },
+
+  igloo: {
+    id: "igloo",
+    lootLevel: 4,
+    maxEnchants: 2,
+    aenchants: [27, 22, 33, 34, 35]
+  },
+
+  witch_hut: {
+    id: "witch_hut",
+    lootLevel: 8,
+    maxEnchants: 2,
+    aenchants: [11, 12, 24]
+  },
+
+  desert_pyramid: {
+    id: "desert_pyramid",
+    lootLevel: 6,
+    maxEnchants: 5,
+    aenchants: [27, 32, 35, 21]
+  },
+
+  jungle_pyramid: {
+    id: "jungle_pyramid",
+    lootLevel: 8,
+    maxEnchants: 5,
+    aenchants: [27, 12, 15, 18]
+  },
+
+  stronghold: {
+    id: "stronghold",
+    lootLevel: 13,
+    maxEnchants: 7,
+    aenchants: [27, 30, 20, 23, 25, 36, 21]
+  },
+
+  woodland_mansion: {
+    id: "woodland_mansion",
+    lootLevel: 5,
+    maxEnchants: 8,
+    aenchants: [27, 12, 18, 22, 26, 36]
+  },
+
+  nether_fortress: {
+    id: "nether_fortress",
+    lootLevel: 12,
+    maxEnchants: 10,
+    aenchants: [30, 32, 35, 24]
+  },
+
+  bastion_remnant: {
+    id: "bastion_remnant",
+    lootLevel: 12,
+    maxEnchants: 12,
+    aenchants: [30, 19, 32, 24]
+  },
+
+  end_city: {
+    id: "end_city",
+    lootLevel: 20,
+    maxEnchants: 15,
+    aenchants: [10, 11, 30, 12, 19, 20, 23, 26, 29, 36, 21]
+  }
+};
+
+
+//§klt{Structure}
 function loreAndEnchants(player, specialTag, itemStack) {
+    let newLore = [];
     
+    
+    const newItem = itemStack.clone();
+    newItem.setLore(newLore);
 }
 
 /*======================
