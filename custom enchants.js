@@ -1077,6 +1077,12 @@ world.beforeEvents.playerInteractWithBlock.subscribe((eventData) => {
 });
 
 
+//================================TRIGGERS============================
+
+
+
+//====================================================================
+
 /*======================
    Loot Table System
 ======================*/
@@ -1224,12 +1230,140 @@ const structures = {
 
 //§klt{Structure}
 function loreAndEnchants(player, specialTag, itemStack) {
-    let newLore = [];
-    
-    
-    const newItem = itemStack.clone();
-    newItem.setLore(newLore);
+    // Debug mode
+    const DEBUG = true;
+    function debug(...args) {
+        if (DEBUG) console.warn('[LootEnchant Debug]:', ...args);
+    }
+
+    try {
+        // 1. Clone itemStack
+        const newItem = itemStack.clone();
+        debug('Item cloned successfully');
+
+        // 2. Identify structure
+        const structure = structures[specialTag];
+        if (!structure) {
+            debug('Invalid structure tag:', specialTag);
+            return;
+        }
+        debug('Structure identified:', structure.id, 'LootLevel:', structure.lootLevel, 'MaxEnchants:', structure.maxEnchants);
+
+        // Get item tags for filtering enchantments
+        const itemTags = getWeaponTags(itemStack.typeId);
+        debug('Item tags:', itemTags);
+        if (itemTags.length === 0) {
+            debug('No valid weapon tags found');
+            return;
+        }
+
+        // 3. Process enchantments
+        let appliedEnchants = [];
+        let newLore = [];
+
+        // Perform rolls based on maxEnchants
+        for (let i = 0; i < structure.maxEnchants; i++) {
+            // 33% chance to apply enchant (increased from 20%)
+            if (Math.random() < 0.33) {
+                debug('Roll', i + 1, 'successful');
+
+                // Filter available enchants based on weapon tags
+                const availableEnchants = structure.aenchants.filter(id => {
+                    // Get enchant data
+                    const enchantData = Object.values(enchants).find(e => e.id === id);
+                    // Check if enchant exists and hasn't been applied yet
+                    if (!enchantData || appliedEnchants.some(e => e.id === id)) {
+                        return false;
+                    }
+                    // Check if any of the item's tags match the enchantment's valid targets
+                    return enchantData.enchantOn.some(tag => itemTags.includes(tag));
+                });
+
+                if (availableEnchants.length === 0) {
+                    debug('No more available compatible enchants');
+                    break;
+                }
+
+                const randomEnchantId = availableEnchants[Math.floor(Math.random() * availableEnchants.length)];
+                
+                // Find corresponding enchant in enchants const
+                const enchantData = Object.values(enchants).find(e => e.id === randomEnchantId);
+                if (!enchantData) {
+                    debug('Enchant not found for ID:', randomEnchantId);
+                    continue;
+                }
+
+                // Generate random level between 1 and structure's lootLevel
+                const level = Math.floor(Math.random() * structure.lootLevel) + 1;
+                
+                // Add to applied enchants
+                appliedEnchants.push({
+                    id: randomEnchantId,
+                    name: enchantData.name,
+                    level: Math.min(level, enchantData.maxLvl) // Ensure we don't exceed max level
+                });
+
+                debug('Applied enchant:', enchantData.name, 'Level:', level);
+            } else {
+                debug('Roll', i + 1, 'failed');
+            }
+        }
+
+        // Create lore with enchants
+        appliedEnchants.forEach(enchant => {
+            newLore.push(`${enchant.name} ${intToRoman(enchant.level)}`);
+        });
+
+        // Process lore through giveLore function
+        newLore = giveLore(itemStack, newLore);
+        debug('Processed lore:', newLore);
+
+        // 4. Set new lore
+        newItem.setLore(newLore);
+        debug('New lore set:', newLore);
+
+        // 5. Give item to player
+        try {
+            const equipment = player.getComponent("minecraft:equippable");
+            if (equipment) {
+                equipment.setEquipment(EquipmentSlot.Mainhand, newItem);
+                debug('Item successfully given to player');
+                
+                // Remove the special tag from lore
+                player.sendMessage("§aItem successfully enchanted!");
+            }
+        } catch (equipError) {
+            debug('Equipment update failed:', equipError);
+            
+            // Fallback to inventory approach
+            try {
+                const inventory = player.getComponent("minecraft:inventory");
+                if (inventory && inventory.container) {
+                    inventory.container.setItem(player.selectedSlot, newItem);
+                    debug('Item given to player (fallback method)');
+                    player.sendMessage("§aItem successfully enchanted! (alt method)");
+                }
+            } catch (invError) {
+                debug('Inventory update failed:', invError);
+                player.sendMessage("§cFailed to enchant item!");
+                throw invError;
+            }
+        }
+
+    } catch (error) {
+        debug('Fatal error:', error);
+        player.sendMessage("§cAn error occurred while enchanting the item!");
+        console.error('LootEnchant Error:', error);
+    }
 }
+
+
+function giveLore(itemStack, newLore) {
+    // This function will be implemented later
+    // For now, just return the newLore
+    return newLore;
+}
+
 
 /*======================
   Effects from enchantments
