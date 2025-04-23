@@ -502,6 +502,21 @@ function rdxplvl(num) {
   return Math.floor(level); // Minecraft levels are whole numbers
 }
 
+//Random rarity
+function getRandomRarity() {
+    const entries = Object.entries(rarityLibrary);
+    const totalWeight = entries.reduce((sum, [_, rarity]) => sum + rarity.weight, 0);
+    let random = Math.random() * totalWeight;
+
+    for (const [_, rarity] of entries) {
+        if (random < rarity.weight) {
+            return rarity;
+        }
+        random -= rarity.weight;
+    }
+}
+
+
 
 /*======================
   Core Enchanting Logic
@@ -1357,11 +1372,108 @@ function loreAndEnchants(player, specialTag, itemStack) {
     }
 }
 
+//========================LORE SYSTEM====================
+
+const loreLibrary = {
+    uniqueEquipment: {
+        
+    },
+    normalEquipment: {
+        
+    }
+};
+
+const rarityLibrary = {
+    common: {
+        weight: 50,
+        id: 0,
+        name: "§7Common"
+    },
+    uncommon: {
+        weight: 30,
+        id: 1,
+        name: "§aUncommon"
+    },
+    rare: {
+        weight: 15,
+        id: 2,
+        name: "§9Rare"
+    },
+    epic: {
+        weight: 5,
+        id: 3,
+        name: "§5Epic"
+    },
+    legendary: {
+        weight: 1,
+        id: 4,
+        name: "§6Legendary"
+    },
+    mythic: {
+        weight: 0.5,
+        id: 5,
+        name: "§dMythic"
+    }
+};
+
+
+//stats of items
+const materials = {
+    
+};
+
+const uniqueItemsStats {
+    
+};
+
+function getLoreSkill(itemType) {
+    //get material
+    let material;
+    for (const key in materials) {
+        if (itemType.include(key)) {
+            material = materials[key];
+        } else if (itemType.include("unique")) {
+            material = uniqueItemsStats[itemType];
+        } else {
+            console.warn("Not an item");
+        }
+    }
+    
+    
+    //get skill from loreLibrary and replace placeholders with values from materials (line 1431)
+    let skillLoreRaw = ["§9normal"];
+    if (itemType.include("unique")) {
+        for (const key in loreLibrary.uniqueEquipment) {
+            if (itemType.include(key)) {
+                skillLoreRaw = loreLibrary.uniqueEquipment[key];
+            }
+        }
+    } else {
+        for (const key in loreLibrary.normalEquipment) {
+            if (itemType.include(key)) {
+                skillLoreRaw = loreLibrary.normalEquipment[key];
+            }
+        }
+    }
+    skillLoreRaw = skillLoreRaw.replace
+    
+    
+    return skillLoreRaw;
+}
 
 function giveLore(itemStack, newLore) {
-    // This function will be implemented later
-    // For now, just return the newLore
-    return newLore;
+    //Clone itemStack and extract type of item
+    const newItem = itemStack?.clone();
+    const itemType = itemStack?.typeId;
+    const separator = ["§8------------------"];
+    const rarityIdWeight = (Math.random() * 100);
+    //getLoreData
+    let loreSkill = getLoreSkill(itemType);
+    
+    
+    const loreRarityData = getRandomRarity();
+    
+    return [...loreRarityData.name, ...separator, ...loreSkill, ...separator, ...newLore];
 }
 
 
