@@ -3,7 +3,7 @@
  *======================*/
 import { world, system, EquipmentSlot, EntityComponentTypes } from "@minecraft/server";
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
-
+import { enchants, weaponTagMapping, structures, loreLibrary, rarityLibrary, materials, uniqueItemsStats, placeholdersRPLV } from './const_config.js';
 
 
 
