@@ -299,7 +299,29 @@
                 
                 async selectFolder() {
                     try {
-                        const handle = await window.showDirectoryPicker();
+                        // Check if browser supports the File System Access API
+                        if (!('showDirectoryPicker' in window)) {
+                            // Fallback for browsers that don't support File System Access API
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.webkitdirectory = true;
+                            input.directory = true;
+                            
+                            input.onchange = (e) => {
+                                const files = Array.from(e.target.files);
+                                this.selectedFolder = e.target.files[0].webkitRelativePath.split('/')[0];
+                                this.folderPathInput.value = this.selectedFolder;
+                                this.loadFilesFromInput(files);
+                            };
+                            
+                            input.click();
+                            return;
+                        }
+                
+                        // Modern browsers with File System Access API support
+                        const handle = await window.showDirectoryPicker({
+                            mode: 'readwrite'
+                        });
                         this.selectedFolder = handle;
                         this.folderPathInput.value = handle.name;
                         await this.loadFiles();
@@ -312,9 +334,16 @@
                 async loadFiles() {
                     try {
                         const files = [];
-                        for await (const entry of this.selectedFolder.values()) {
-                            if (entry.kind === 'file' && entry.name.endsWith('.json')) {
-                                files.push(entry.name);
+                        
+                        if (this.selectedFolder instanceof FileSystemDirectoryHandle) {
+                            // Using File System Access API
+                            for await (const entry of this.selectedFolder.values()) {
+                                if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.json')) {
+                                    files.push({
+                                        name: entry.name,
+                                        handle: entry
+                                    });
+                                }
                             }
                         }
                         
@@ -324,13 +353,13 @@
                         // Populate file list
                         this.fileList.innerHTML = '';
                         
-                        this.files.sort().forEach(file => {
-                            const nameWithoutExt = file.replace('.json', '');
+                        this.files.sort((a, b) => a.name.localeCompare(b.name)).forEach(file => {
+                            const nameWithoutExt = file.name.replace('.json', '');
                             
                             const item = document.createElement('div');
                             item.className = 'file-item';
                             item.textContent = nameWithoutExt;
-                            item.dataset.file = file;
+                            item.dataset.file = file.name;
                             
                             item.addEventListener('click', () => {
                                 item.classList.toggle('selected');
@@ -338,7 +367,57 @@
                                 if (item.classList.contains('selected')) {
                                     this.selectedFiles.push(file);
                                 } else {
-                                    const index = this.selectedFiles.indexOf(file);
+                                    const index = this.selectedFiles.findIndex(f => f.name === file.name);
+                                    if (index !== -1) {
+                                        this.selectedFiles.splice(index, 1);
+                                    }
+                                }
+                            });
+                            
+                            this.fileList.appendChild(item);
+                        });
+                    } catch (error) {
+                        console.error('Loading files failed:', error);
+                        alert(`Failed to load files: ${error.message}`);
+                    }
+                }
+                
+                // Add this new method to handle files from input element
+                async loadFilesFromInput(inputFiles) {
+                    try {
+                        const files = [];
+                        
+                        // Filter JSON files
+                        for (const file of inputFiles) {
+                            if (file.name.toLowerCase().endsWith('.json')) {
+                                files.push({
+                                    name: file.name,
+                                    handle: file
+                                });
+                            }
+                        }
+                        
+                        this.files = files;
+                        this.selectedFiles = [];
+                        
+                        // Populate file list
+                        this.fileList.innerHTML = '';
+                        
+                        this.files.sort((a, b) => a.name.localeCompare(b.name)).forEach(file => {
+                            const nameWithoutExt = file.name.replace('.json', '');
+                            
+                            const item = document.createElement('div');
+                            item.className = 'file-item';
+                            item.textContent = nameWithoutExt;
+                            item.dataset.file = file.name;
+                            
+                            item.addEventListener('click', () => {
+                                item.classList.toggle('selected');
+                                
+                                if (item.classList.contains('selected')) {
+                                    this.selectedFiles.push(file);
+                                } else {
+                                    const index = this.selectedFiles.findIndex(f => f.name === file.name);
                                     if (index !== -1) {
                                         this.selectedFiles.splice(index, 1);
                                     }
@@ -527,12 +606,24 @@
                       throw new Error(`Failed to create backup: ${error.message}`);
                     }
                 }
-                
                 async modifyLootTable(filePath) {
                     try {
-                        // Read the existing file
-                        const response = await fetch(filePath);
-                        const lootTable = await response.json();
+                        let lootTable;
+                        
+                        if (filePath instanceof FileSystemFileHandle) {
+                            // Using File System Access API
+                            const file = await filePath.getFile();
+                            const content = await file.text();
+                            lootTable = JSON.parse(content);
+                        } else {
+                            // Using traditional file access
+                            const file = this.selectedFiles.find(f => f.handle.name === filePath.split('/').pop());
+                            if (!file) {
+                                throw new Error('File not found');
+                            }
+                            const content = await file.handle.text();
+                            lootTable = JSON.parse(content);
+                        }
                         
                         // Ensure pools array exists
                         if (!lootTable.pools) {
@@ -552,46 +643,49 @@
                         }
                         
                         // Add the new entry
-                        const newEntry = this.generateNewEntry(filePath.split('/').pop());
+                        const newEntry = this.generateNewEntry(typeof filePath === 'string' ? filePath.split('/').pop() : filePath.name);
                         targetPool.entries.push(newEntry);
                         
                         // Save the modified loot table
-                        const handle = await window.showSaveFilePicker({
-                            suggestedName: filePath.split('/').pop(),
-                            types: [{
-                                description: 'JSON Files',
-                                accept: {'application/json': ['.json']}
-                            }],
-                        });
-                        
-                        const writable = await handle.createWritable();
-                        await writable.write(JSON.stringify(lootTable, null, 2));
-                        await writable.close();
+                        if (filePath instanceof FileSystemFileHandle) {
+                            // Using File System Access API
+                            const writable = await filePath.createWritable();
+                            await writable.write(JSON.stringify(lootTable, null, 2));
+                            await writable.close();
+                        } else {
+                            // Using traditional file download
+                            const blob = new Blob([JSON.stringify(lootTable, null, 2)], { type: 'application/json' });
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = URL.createObjectURL(blob);
+                            downloadLink.download = filePath.split('/').pop();
+                            downloadLink.click();
+                            URL.revokeObjectURL(downloadLink.href);
+                        }
                         
                         return true;
                     } catch (error) {
                         console.error('Loot table modification failed:', error);
                         throw new Error(`Failed to modify loot table: ${error.message}`);
                     }
-                }  
-              
+                }                
+     
             }
-          async readFile(filePath) {
-              try {
-                  const handle = await window.showOpenFilePicker({
-                      types: [{
-                          description: 'JSON Files',
-                          accept: {'application/json': ['.json']}
-                      }],
-                  });
-                  const file = await handle.getFile();
-                  const content = await file.text();
-                  return JSON.parse(content);
-              } catch (error) {
-                  console.error('File reading failed:', error);
-                  throw new Error(`Failed to read file: ${error.message}`);
-              }
-          }          
+            async readFile(filePath) {
+                try {
+                    const handle = await window.showOpenFilePicker({
+                        types: [{
+                            description: 'JSON Files',
+                            accept: {'application/json': ['.json']}
+                        }],
+                    });
+                    const file = await handle.getFile();
+                    const content = await file.text();
+                    return JSON.parse(content);
+                } catch (error) {
+                    console.error('File reading failed:', error);
+                    throw new Error(`Failed to read file: ${error.message}`);
+                }
+            }          
             
             // Initialize the application
             const app = new LootTableEditor();
