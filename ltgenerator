@@ -297,64 +297,61 @@
                     });
                 }
                 
-                selectFolder() {
-                    // In a real app, this would open a file dialog
-                    // For this demo, we'll simulate it with a prompt
-                    const folder = prompt("Enter folder path:", this.selectedFolder || "C:storage/emulated/0/A Ultimate combat overhaul/assets/bedrock-samples-main/behavior_pack/loot_tables/chests");
-                    if (folder) {
-                        this.selectedFolder = folder;
-                        this.folderPathInput.value = folder;
-                        this.loadFiles();
+                async selectFolder() {
+                    try {
+                        const handle = await window.showDirectoryPicker();
+                        this.selectedFolder = handle;
+                        this.folderPathInput.value = handle.name;
+                        await this.loadFiles();
+                    } catch (error) {
+                        console.error('Folder selection failed:', error);
+                        alert(`Failed to select folder: ${error.message}`);
                     }
                 }
                 
-                loadFiles() {
-                    // In a real app, this would scan the folder for JSON files
-                    // For this demo, we'll simulate with some example files
-                    const exampleFiles = [
-                        'ancient_city.json',
-                        'desert_pyramid.json',
-                        'jungle_temple.json',
-                        'stronghold.json',
-                        'woodland_mansion.json',
-                        'bastion_remnant.json',
-                        'nether_fortress.json',
-                        'end_city.json',
-                        'ruined_portal.json',
-                        'underwater_ruin.json'
-                    ];
-                    
-                    this.files = exampleFiles;
-                    this.selectedFiles = [];
-                    
-                    // Populate file list
-                    this.fileList.innerHTML = '';
-                    
-                    this.files.sort().forEach(file => {
-                        const nameWithoutExt = file.replace('.json', '');
-                        
-                        const item = document.createElement('div');
-                        item.className = 'file-item';
-                        item.textContent = nameWithoutExt;
-                        item.dataset.file = file;
-                        
-                        // Add click event for selection
-                        item.addEventListener('click', () => {
-                            item.classList.toggle('selected');
-                            
-                            if (item.classList.contains('selected')) {
-                                this.selectedFiles.push(file);
-                            } else {
-                                const index = this.selectedFiles.indexOf(file);
-                                if (index !== -1) {
-                                    this.selectedFiles.splice(index, 1);
-                                }
+                async loadFiles() {
+                    try {
+                        const files = [];
+                        for await (const entry of this.selectedFolder.values()) {
+                            if (entry.kind === 'file' && entry.name.endsWith('.json')) {
+                                files.push(entry.name);
                             }
-                        });
+                        }
                         
-                        this.fileList.appendChild(item);
-                    });
-                }
+                        this.files = files;
+                        this.selectedFiles = [];
+                        
+                        // Populate file list
+                        this.fileList.innerHTML = '';
+                        
+                        this.files.sort().forEach(file => {
+                            const nameWithoutExt = file.replace('.json', '');
+                            
+                            const item = document.createElement('div');
+                            item.className = 'file-item';
+                            item.textContent = nameWithoutExt;
+                            item.dataset.file = file;
+                            
+                            item.addEventListener('click', () => {
+                                item.classList.toggle('selected');
+                                
+                                if (item.classList.contains('selected')) {
+                                    this.selectedFiles.push(file);
+                                } else {
+                                    const index = this.selectedFiles.indexOf(file);
+                                    if (index !== -1) {
+                                        this.selectedFiles.splice(index, 1);
+                                    }
+                                }
+                            });
+                            
+                            this.fileList.appendChild(item);
+                        });
+                    } catch (error) {
+                        console.error('Loading files failed:', error);
+                        alert(`Failed to load files: ${error.message}`);
+                    }
+                }                
                 
                 selectAll() {
                     const items = this.fileList.querySelectorAll('.file-item');
@@ -471,38 +468,130 @@
                     this.previewModal.style.display = 'block';
                 }
                 
-                applyChanges() {
-                    if (!this.validateInput()) {
-                        return;
+                async applyChanges() {
+                  if (!this.validateInput()) {
+                    return;
+                  }
+    
+                  if (this.selectedFiles.length === 0) {
+                    alert("No files selected!");
+                    return;
+                  }
+    
+                  const confirmResult = confirm(`Are you sure you want to modify ${this.selectedFiles.length} file(s)? This will create backups before making changes.`);
+                  if (!confirmResult) {
+                    return;
+                  }
+    
+                  for (const fileName of this.selectedFiles) {
+                    const filePath = `${this.selectedFolder}/${fileName}`;
+                    try {
+                    // Create backup first
+                      await this.createBackup(filePath);
+            
+                    // Modify the loot table
+                      await this.modifyLootTable(filePath);
+                    } catch (error) {
+                      alert(`Error processing ${fileName}: ${error.message}`);
+                      return;
                     }
-                    
-                    if (this.selectedFiles.length === 0) {
-                        alert("No files selected!");
-                        return;
-                    }
-                    
-                    // In a real app, this would modify the actual files
-                    // For this demo, we'll just show an alert
-                    const modifiedCount = this.selectedFiles.length;
-                    alert(`Changes applied to ${modifiedCount} file(s)!
-                    
-In a real implementation, this would:
-1. Create backups of the selected files
-2. Add the new item entry to each loot table
-3. Update the rolls count to ${this.rollsInput.value}`);
+                  }
+    
+                  alert(`Successfully modified ${this.selectedFiles.length} file(s)!`);
                 }
                 
-                // In a real app, we would have methods for file operations
-                createBackup(filePath) {
-                    // Would create a backup of the file
-                    console.log(`Creating backup of: ${filePath}`);
+                async createBackup(filePath) {
+                  try {
+                    const response = await fetch(filePath);
+                    const content = await response.text();
+                      
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    const backupPath = `${filePath}.${timestamp}.backup`;
+                    
+                    // Use the File System Access API to write the backup
+                    const handle = await window.showSaveFilePicker({
+                      suggestedName: backupPath.split('/').pop(),
+                      types: [{
+                        description: 'JSON Backup File',
+                        accept: {'application/json': ['.backup']}
+                      }],
+                    });
+        
+                    const writable = await handle.createWritable();
+                    await writable.write(content);
+                    await writable.close();
+                    
+                    return true;
+                    } catch (error) {
+                      console.error('Backup creation failed:', error);
+                      throw new Error(`Failed to create backup: ${error.message}`);
+                    }
                 }
                 
-                modifyLootTable(filePath) {
-                    // Would modify the loot table file
-                    console.log(`Modifying loot table: ${filePath}`);
-                }
+                async modifyLootTable(filePath) {
+                    try {
+                        // Read the existing file
+                        const response = await fetch(filePath);
+                        const lootTable = await response.json();
+                        
+                        // Ensure pools array exists
+                        if (!lootTable.pools) {
+                            lootTable.pools = [];
+                        }
+                        
+                        // Find or create the appropriate pool
+                        let targetPool = lootTable.pools.find(pool => pool.rolls);
+                        if (!targetPool) {
+                            targetPool = {
+                                rolls: parseInt(this.rollsInput.value),
+                                entries: []
+                            };
+                            lootTable.pools.push(targetPool);
+                        } else {
+                            targetPool.rolls = parseInt(this.rollsInput.value);
+                        }
+                        
+                        // Add the new entry
+                        const newEntry = this.generateNewEntry(filePath.split('/').pop());
+                        targetPool.entries.push(newEntry);
+                        
+                        // Save the modified loot table
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: filePath.split('/').pop(),
+                            types: [{
+                                description: 'JSON Files',
+                                accept: {'application/json': ['.json']}
+                            }],
+                        });
+                        
+                        const writable = await handle.createWritable();
+                        await writable.write(JSON.stringify(lootTable, null, 2));
+                        await writable.close();
+                        
+                        return true;
+                    } catch (error) {
+                        console.error('Loot table modification failed:', error);
+                        throw new Error(`Failed to modify loot table: ${error.message}`);
+                    }
+                }  
+              
             }
+          async readFile(filePath) {
+              try {
+                  const handle = await window.showOpenFilePicker({
+                      types: [{
+                          description: 'JSON Files',
+                          accept: {'application/json': ['.json']}
+                      }],
+                  });
+                  const file = await handle.getFile();
+                  const content = await file.text();
+                  return JSON.parse(content);
+              } catch (error) {
+                  console.error('File reading failed:', error);
+                  throw new Error(`Failed to read file: ${error.message}`);
+              }
+          }          
             
             // Initialize the application
             const app = new LootTableEditor();
