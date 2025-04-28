@@ -78,14 +78,13 @@ int main() {
         diffToPerp = 270 - angleDiff;
     }
     
-    int minutesToPerp = ceil(diffToPerp / 5.5);
+    int minutesToPerp = ceil(diffToPerp / 6);
     
     if (minutesToPerp > 60) {
         minutesToPerp = minutesToPerp % 60;
     }
     
-    cout << "Minimum time (in minutes) until clock arrows are perpendicular: " 
-         << minutesToPerp << endl;
+    cout << "Minimum time (in minutes) until clock arrows are perpendicular: " << minutesToPerp << endl;
 
 	return 0;
 }
