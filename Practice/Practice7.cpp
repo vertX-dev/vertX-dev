@@ -72,14 +72,10 @@ void switchHalfsOfArray() {
 	for (int i = 0; i < (rows / 2); i++) { 
 		for (int j = 0; j < cols; j++) {
 			temp = array[i][j];
-			array[i][j] = array[rows - i][j];
-			array[rows - i][j] = temp;
+			array[i][j] = array[rows - i - 1][j];
+			array[rows - i - 1][j] = temp;
 		}
 	}
-
-
-
-
 	cout << "Switched Array:\n";
 	for (int i = 0; i < rows; ++i) {
 		for (int j = 0; j < cols; ++j) {
