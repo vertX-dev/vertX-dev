@@ -1,35 +1,60 @@
+// ConsoleApplication8.cpp: определяет точку входа для консольного приложения.
+//
+
+#include "stdafx.h"
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
 
 using namespace std;
 
-int main() {
-    const int rows = 4;  // Кількість рядків
-    const int cols = 5;  // Кількість стовпців
-    int array[rows][cols];
+void randomArray() {
+	const int rows = 4;
+	const int cols = 5;
+	int array[rows][cols];
 
-    srand(time(0));  // Ініціалізація генератора випадкових чисел
+	srand(time(0));
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			array[i][j] = rand() % 11 - 5;
+		}
+	}
 
-    // Заповнення масиву випадковими числами в діапазоні [-5, 5]
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            array[i][j] = rand() % 11 - 5;
-        }
-    }
-
-    // Вивід масиву по рядках
-    cout << "Масив:\n";
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            cout << array[i][j] << "\t";
-        }
-        cout << endl;
-    }
-
-    // Обчислення суми двох будь-яких елементів третього стовпця (індекс 2)
-    int sum = array[0][2] + array[2][2];  // Наприклад, перший і третій елементи
-    cout << "Сума 1-го і 3-го елементів третього стовпця: " << sum << endl;
-
-    return 0;
+	cout << "Array:\n";
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			cout << array[i][j] << "\t";
+		}
+		cout << endl;
+	}
+	int sum = array[0][2] + array[2][2];
+	cout << "The sum of 1st and 3rd elements of the third column: " << sum << endl;
 }
+void specificArray() {
+	const int rows = 12;
+	const int cols = 10;
+	int array[rows][cols];
+	
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			array[i][j] = (j % 2 == 0) ? (12 * (j + 1) + i - 11) : (12 * (j + 1) - i);
+		}
+	}
+
+	cout << "Array:\n";
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			cout << array[i][j] << "\t";
+		}
+		cout << endl;
+	}
+}
+
+
+
+int main() {
+	randomArray();
+	specificArray();
+	return 0;
+}
+
