@@ -51,8 +51,8 @@ void specificArray() {
 }
 void switchHalfsOfArray() {
 	srand(time(0));
-	const int rows = 4;
-	const int cols = 4;
+	const int rows = 60;//even; positive; integer
+	const int cols = 40;//positive; integer
 	int array[rows][cols];
 
 	for (int i = 0; i < rows; ++i) {
