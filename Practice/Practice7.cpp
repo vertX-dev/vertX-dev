@@ -49,12 +49,51 @@ void specificArray() {
 		cout << endl;
 	}
 }
+void switchHalfsOfArray() {
+	srand(time(0));
+	const int rows = 4;
+	const int cols = 4;
+	int array[rows][cols];
 
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			array[i][j] = rand() % 2000 - 1000;
+		}
+	}
+	cout << "Starting Array:\n";
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			cout << array[i][j] << "\t";
+		}
+		cout << endl;
+	}
+	//Switching process
+	int temp;
+	for (int i = 0; i < (rows / 2); i++) { 
+		for (int j = 0; j < cols; j++) {
+			temp = array[i][j];
+			array[i][j] = array[rows - i][j];
+			array[rows - i][j] = temp;
+		}
+	}
+
+
+
+
+	cout << "Switched Array:\n";
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			cout << array[i][j] << "\t";
+		}
+		cout << endl;
+	}
+}
 
 
 int main() {
 	randomArray();
 	specificArray();
+	switchHalfsOfArray();
 	return 0;
 }
 
