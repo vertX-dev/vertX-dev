@@ -1,11 +1,10 @@
-// ConsoleApplicationed.cpp: определяет точку входа для консольного приложения.
-//
-
-#include "stdafx.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <cctype>
+
+using namespace std;
 
 char encryptChar(char c, int shift) {
 	if (isalpha(c)) {
@@ -16,36 +15,6 @@ char encryptChar(char c, int shift) {
 	return c;
 }
 
-void encrypt() {
-	std::string input;
-	std::cout << "Enter text to encrypt (max 255 chars): ";
-	std::cin >> input;
-	if (input.length() > 255) input = input.substr(0, 255);
-
-	std::string encrypted;
-	int shift, key;
-	std::cout << "Enter integer as key: ";
-	std::cin >> key;
-	srand(key);
-	shift = rand() % 25;
-
-
-	for (char c : input) {
-		encrypted += encryptChar(c, shift);
-	}
-
-	std::ofstream outFile("encrypted.txt");
-	if (outFile.is_open()) {
-		outFile << encrypted;
-		outFile.close();
-		std::cout << "Encrypted text saved to encrypted.txt\n";
-	}
-	else {
-		std::cerr << "Error writing to file.\n";
-	}
-}
-
-
 char decryptChar(char c, int shift) {
 	if (isalpha(c)) {
 		char base = islower(c) ? 'a' : 'A';
@@ -55,46 +24,71 @@ char decryptChar(char c, int shift) {
 	return c;
 }
 
+int getShiftFromKey() {
+	int key;
+	cout << "Enter integer as key: ";
+	cin >> key;
+	srand(key);
+	return rand() % 25;
+}
+
+string processText(const string& text, int shift, bool encryptMode) {
+	string result;
+	for (char c : text) {
+		result += encryptMode ? encryptChar(c, shift) : decryptChar(c, shift);
+	}
+	return result;
+}
+
+void encrypt() {
+	string input;
+	cout << "Enter text to encrypt (max 255 chars): ";
+	cin >> input;
+	if (input.length() > 255) input = input.substr(0, 255);
+
+	int shift = getShiftFromKey();
+	string encrypted = processText(input, shift, true);
+
+	ofstream outFile("encrypted.txt");
+	if (outFile.is_open()) {
+		outFile << encrypted;
+		outFile.close();
+		cout << "Encrypted text saved to encrypted.txt\n";
+	} else {
+		cerr << "Error writing to file.\n";
+	}
+}
+
 void decrypt() {
-	std::ifstream inFile("encrypted.txt");
-	std::string encrypted;
+	ifstream inFile("encrypted.txt");
+	string encrypted;
 
 	if (inFile.is_open()) {
-		std::getline(inFile, encrypted);
+		getline(inFile, encrypted);
 		inFile.close();
-	}
-	else {
-		std::cerr << "Error reading encrypted.txt\n";
-	}
-
-	std::string decrypted;
-	int shift, key;
-	std::cout << "Enter integer as key: ";
-	std::cin >> key;
-	srand(key);
-	shift = rand() % 25;
-
-	for (char c : encrypted) {
-		decrypted += decryptChar(c, shift);
+	} else {
+		cerr << "Error reading encrypted.txt\n";
+		return;
 	}
 
-	std::ofstream outFile("decrypted.txt");
+	int shift = getShiftFromKey();
+	string decrypted = processText(encrypted, shift, false);
+
+	ofstream outFile("decrypted.txt");
 	if (outFile.is_open()) {
 		outFile << decrypted;
 		outFile.close();
-	}
-	else {
-		std::cerr << "Error writing decrypted.txt\n";
+	} else {
+		cerr << "Error writing decrypted.txt\n";
 	}
 
-	std::cout << "Decrypted text: " << decrypted << "\n";
+	cout << "Decrypted text: " << decrypted << "\n";
 }
-
 
 int main() {
 	char c;
-	std::cout << "Encrypt(e) or decrypt(d): ";
-	std::cin >> c;
+	cout << "Encrypt(e) or decrypt(d): ";
+	cin >> c;
 	switch (c) {
 		case 'e':
 			encrypt();
@@ -103,6 +97,6 @@ int main() {
 			decrypt();
 			break;
 		default:
-			std::cout << "Error";
+			cout << "Error";
 	}
 }
