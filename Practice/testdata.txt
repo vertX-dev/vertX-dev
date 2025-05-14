@@ -1,20 +1,80 @@
-John
-D.
+Smith
+J.D.
 CS101
 5 4 5 5 4
-Emily
-R.
+Brown
+E.R.
 CS102
 3 4 3 4 3
-Michael
-B.
+Johnson
+M.B.
 CS101
 5 5 5 5 5
-Sarah
-T.
+Taylor
+S.T.
 CS103
 4 4 4 4 4
-David
-M.
+Miller
+D.M.
 CS104
 2 3 2 3 2
+Wilson
+K.L.
+CS105
+4 5 4 4 5
+Moore
+A.N.
+CS102
+5 5 5 4 4
+Anderson
+T.J.
+CS106
+3 3 3 3 3
+Thomas
+H.W.
+CS101
+4 4 5 5 4
+Jackson
+R.S.
+CS103
+5 4 3 5 5
+White
+L.E.
+CS104
+2 2 3 2 2
+Harris
+C.A.
+CS105
+5 4 5 5 5
+Martin
+G.B.
+CS106
+3 3 3 3 3
+Thompson
+Z.D.
+CS102
+5 5 4 5 5
+Garcia
+P.Q.
+CS101
+4 4 4 4 4
+Martinez
+Y.K.
+CS103
+2 3 2 3 2
+Robinson
+N.F.
+CS105
+5 5 5 5 4
+Clark
+I.J.
+CS106
+4 4 4 4 4
+Rodriguez
+B.M.
+CS104
+3 3 4 3 4
+Lewis
+S.C.
+CS102
+5 5 5 5 5
