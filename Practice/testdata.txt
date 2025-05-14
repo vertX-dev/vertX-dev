@@ -1,0 +1,20 @@
+John
+D.
+CS101
+5 4 5 5 4
+Emily
+R.
+CS102
+3 4 3 4 3
+Michael
+B.
+CS101
+5 5 5 5 5
+Sarah
+T.
+CS103
+4 4 4 4 4
+David
+M.
+CS104
+2 3 2 3 2
