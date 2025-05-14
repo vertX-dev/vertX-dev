@@ -1,45 +1,82 @@
 #include <iostream>
+#include <fstream>
 #include <string>
+
 using namespace std;
 
-// Define the STUDENT structure
 struct STUDENT {
-    string lastName;
-    string initials;
-    int groupNumber;
+    string lastNameInitials;
+    string groupNumber;
     int grades[5];
 };
 
-// Function to calculate GPA
-float calculateGPA(const STUDENT& student) {
+const int NUM_STUDENTS = 5;
+
+// Function to calculate average grade
+double averageGrade(const STUDENT& student) {
     int sum = 0;
     for (int i = 0; i < 5; ++i) {
         sum += student.grades[i];
     }
-    return static_cast<float>(sum) / 5;
+    return sum / 5.0;
 }
 
 int main() {
-    const int numStudents = 3; // You can change the number as needed
-    STUDENT students[numStudents] = {
-        {"Smith", "J.D.", 101, {5, 4, 4, 5, 5}},
-        {"Brown", "A.L.", 102, {3, 3, 4, 2, 3}},
-        {"Taylor", "M.S.", 101, {5, 5, 5, 4, 5}}
-    };
+    STUDENT students[NUM_STUDENTS];
 
+    // Input data from keyboard
+    cout << "Enter data for 5 students:\n";
+    for (int i = 0; i < NUM_STUDENTS; ++i) {
+        cout << "Student " << i + 1 << ":\n";
+        cout << "Last name and initials: ";
+        cin.ignore();
+        getline(cin, students[i].lastNameInitials);
+        cout << "Group number: ";
+        getline(cin, students[i].groupNumber);
+        cout << "Enter 5 grades: ";
+        for (int j = 0; j < 5; ++j) {
+            cin >> students[i].grades[j];
+        }
+    }
+
+    // Write to file
+    ofstream outFile("students.txt");
+    for (int i = 0; i < NUM_STUDENTS; ++i) {
+        outFile << students[i].lastNameInitials << "\n"
+                << students[i].groupNumber << "\n";
+        for (int j = 0; j < 5; ++j) {
+            outFile << students[i].grades[j] << " ";
+        }
+        outFile << "\n";
+    }
+    outFile.close();
+
+    // Read from file
+    ifstream inFile("students.txt");
+    STUDENT readStudents[NUM_STUDENTS];
+    for (int i = 0; i < NUM_STUDENTS; ++i) {
+        getline(inFile, readStudents[i].lastNameInitials);
+        getline(inFile, readStudents[i].groupNumber);
+        for (int j = 0; j < 5; ++j) {
+            inFile >> readStudents[i].grades[j];
+        }
+        inFile.ignore(); // skip newline after grades
+    }
+    inFile.close();
+
+    // Display students with average > 4.0
     bool found = false;
-    cout << "Students with GPA > 4.0:\n";
-    for (int i = 0; i < numStudents; ++i) {
-        float gpa = calculateGPA(students[i]);
-        if (gpa > 4.0) {
-            cout << "Last Name: " << students[i].lastName
-                 << ", Group Number: " << students[i].groupNumber << endl;
+    cout << "\nStudents with average grade > 4.0:\n";
+    for (int i = 0; i < NUM_STUDENTS; ++i) {
+        if (averageGrade(readStudents[i]) > 4.0) {
+            cout << "Name: " << readStudents[i].lastNameInitials
+                 << ", Group: " << readStudents[i].groupNumber << "\n";
             found = true;
         }
     }
 
     if (!found) {
-        cout << "No students with GPA greater than 4.0 found.\n";
+        cout << "No students with average grade > 4.0\n";
     }
 
     return 0;
