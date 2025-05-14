@@ -26,6 +26,10 @@ double averageGrade(const STUDENT& student) {
 int main() {
 	STUDENT students[NUM_STUDENTS];
 
+
+
+
+	/*
 	// Input data from keyboard
 	cout << "Enter data for 5 students:\n";
 	for (int i = 0; i < NUM_STUDENTS; ++i) {
@@ -54,7 +58,11 @@ int main() {
 		}
 		outFile << "\n";
 	}
-	outFile.close();
+	outFile.close();*/
+
+
+
+
 
 	// Read from file
 	ifstream inFile("students.txt");
