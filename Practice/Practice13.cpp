@@ -83,7 +83,7 @@ int main() {
 	cout << "\nStudents with average grade > 4.0:\n";
 	for (int i = 0; i < NUM_STUDENTS; ++i) {
 		if (averageGrade(readStudents[i]) > 4.0) {
-			cout << "Grade: " << averageGrade << " Last name: " << readStudents[i].lastName
+			cout << "Grade: " << averageGrade(readStudents[i]) << " Last name: " << readStudents[i].lastName
 				<< ", Group: " << readStudents[i].groupNumber << "\n";
 			found = true;
 		}
